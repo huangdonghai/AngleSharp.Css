@@ -93,8 +93,11 @@ namespace AngleSharp.Css.Values
 
         ICssValue ICssValue.Compute(ICssComputeContext context)
         {
-            var layers = _layers.Compute(context);
-            var color = _color.Compute(context);
+            // Merge only guarantees that the two are not both empty - `background: red` has no
+            // layers and `background: url(x)` has no colour - so either may be null. CssText
+            // already accounts for that; calling .Compute() unconditionally did not.
+            var layers = _layers?.Compute(context);
+            var color = _color?.Compute(context);
             return new CssBackgroundValue(layers, color);
         }
 

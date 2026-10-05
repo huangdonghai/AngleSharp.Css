@@ -130,9 +130,11 @@ namespace AngleSharp.Css.Values
 
         ICssValue ICssValue.Compute(ICssComputeContext context)
         {
-            var rows = _rows.Compute(context);
-            var columns = _columns.Compute(context);
-            var areas = _areas.Compute(context);
+            // The grid-template shorthand omits areas when it is written as `rows / columns`, and
+            // either track list may be left out. CssText skips the absent parts; Compute did not.
+            var rows = _rows?.Compute(context);
+            var columns = _columns?.Compute(context);
+            var areas = _areas?.Compute(context);
             return new CssGridTemplateValue(rows, columns, areas);
         }
 

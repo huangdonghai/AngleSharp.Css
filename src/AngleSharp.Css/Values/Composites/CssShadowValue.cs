@@ -143,9 +143,11 @@ namespace AngleSharp.Css.Values
         {
             var offsetX = _offsetX.Compute(context);
             var offsetY = _offsetY.Compute(context);
-            var blurRadius = _blurRadius.Compute(context);
+            // The blur radius and the colour are optional too: `box-shadow: 1px 2px` is valid and
+            // carries neither.
+            var blurRadius = _blurRadius?.Compute(context);
             var spreadRadius = _spreadRadius?.Compute(context);
-            var color = (CssColorValue)((ICssValue)_color).Compute(context);
+            var color = _color.HasValue ? (CssColorValue?)((ICssValue)_color.Value).Compute(context) : null;
             return new CssShadowValue(_inset, offsetX, offsetY, blurRadius, spreadRadius, color);
         }
 

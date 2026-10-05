@@ -156,7 +156,9 @@ namespace AngleSharp.Css.Values
 
         ICssValue ICssValue.Compute(ICssComputeContext context)
         {
-            var values = _values.Select(v => (T)v.Compute(context)).ToArray();
+            // An entry can be null whenever the authored value does not supply all four sides;
+            // CssText tolerates that, so Compute has to as well.
+            var values = _values.Select(v => v == null ? v : (T)v.Compute(context)).ToArray();
             return new CssPeriodicValue<T>(values);
         }
 

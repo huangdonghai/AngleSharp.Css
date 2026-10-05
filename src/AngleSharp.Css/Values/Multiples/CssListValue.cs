@@ -90,7 +90,11 @@ namespace AngleSharp.Css.Values
 
         ICssValue ICssValue.Compute(ICssComputeContext context)
         {
-            var items = _items.Select(v => (T)v.Compute(context)).ToArray();
+            // An item can legitimately be null: a multi-layer property only requires one layer to
+            // carry a component, so the others stay empty - the position of a gradient layer in a
+            // layered background is the case that surfaced this. Calling .Compute() on it
+            // unconditionally threw a NullReferenceException for that ordinary case.
+            var items = _items.Select(v => v == null ? v : (T)v.Compute(context)).ToArray();
             return new CssListValue<T>(items);
         }
 
