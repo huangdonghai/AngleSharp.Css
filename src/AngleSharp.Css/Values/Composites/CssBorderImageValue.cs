@@ -139,11 +139,13 @@ namespace AngleSharp.Css.Values
 
         ICssValue ICssValue.Compute(ICssComputeContext context)
         {
-            var image = _image.Compute(context);
-            var slice = _slice.Compute(context);
-            var widths = _widths.Compute(context);
-            var offsets = _outsets.Compute(context);
-            var repeat = _repeat.Compute(context);
+            // The border-image shorthand fills in only the components that were authored; the rest
+            // remain null and CssText skips them, so Compute has to skip them as well.
+            var image = _image?.Compute(context);
+            var slice = _slice?.Compute(context);
+            var widths = _widths?.Compute(context);
+            var offsets = _outsets?.Compute(context);
+            var repeat = _repeat?.Compute(context);
             return new CssBorderImageValue(image, slice, widths, offsets, repeat);
         }
 

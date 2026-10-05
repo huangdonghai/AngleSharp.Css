@@ -158,13 +158,17 @@ namespace AngleSharp.Css.Values
 
         ICssValue ICssValue.Compute(ICssComputeContext context)
         {
-            var image = _image.Compute(context);
-            var position = _position.Compute(context);
-            var size = _size.Compute(context);
-            var repeat = _repeat.Compute(context);
-            var attachment = _attachment.Compute(context);
-            var origin = _origin.Compute(context);
-            var clip = _clip.Compute(context);
+            // Every component but the image is optional. A layer such as the gradient in
+            // `background: linear-gradient(...), url(x) center / cover` carries no position, size
+            // or repeat, so those fields are null - CssText already handles that, and calling
+            // .Compute() on them unconditionally threw a NullReferenceException.
+            var image = _image?.Compute(context);
+            var position = _position?.Compute(context);
+            var size = _size?.Compute(context);
+            var repeat = _repeat?.Compute(context);
+            var attachment = _attachment?.Compute(context);
+            var origin = _origin?.Compute(context);
+            var clip = _clip?.Compute(context);
             return new CssBackgroundLayerValue(image, position, size, repeat, attachment, origin, clip);
         }
 

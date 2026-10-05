@@ -130,9 +130,11 @@ namespace AngleSharp.Css.Values
 
         ICssValue ICssValue.Compute(ICssComputeContext context)
         {
-            var rows = _rows.Compute(context);
-            var columns = _columns.Compute(context);
-            var sizes = _sizes.Select(s => s.Compute(context));
+            // `grid: auto-flow / 1fr` leaves rows or columns null, and an entry of the size list may
+            // be absent as well. CssText tolerates both; Compute did not.
+            var rows = _rows?.Compute(context);
+            var columns = _columns?.Compute(context);
+            var sizes = _sizes.Select(s => s == null ? s : s.Compute(context));
             return new CssGridValue(rows, columns, sizes, _dense);
         }
 

@@ -133,8 +133,9 @@ namespace AngleSharp.Css.Values
 
         ICssValue ICssValue.Compute(ICssComputeContext context)
         {
-            var alpha = _alpha.Compute(context);
-            var beta = _beta.Compute(context);
+            // skewX() only carries the alpha and skewY() only the beta, so either one may be absent.
+            var alpha = _alpha?.Compute(context);
+            var beta = _beta?.Compute(context);
 
             if (alpha != _alpha || beta != _beta)
             {

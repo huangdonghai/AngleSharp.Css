@@ -166,13 +166,15 @@ namespace AngleSharp.Css.Values
 
         ICssValue ICssValue.Compute(ICssComputeContext context)
         {
+            // Only the size and the family list are mandatory in the font shorthand; style,
+            // variant, weight, stretch and line height are all optional and stay null when absent.
             var fontFamilies = _fontFamilies.Compute(context);
-            var lineHeight = _lineHeight.Compute(context);
+            var lineHeight = _lineHeight?.Compute(context);
             var size = _size.Compute(context);
-            var stretch = _stretch.Compute(context);
-            var style = _style.Compute(context);
-            var variant = _variant.Compute(context);
-            var weight = _weight.Compute(context);
+            var stretch = _stretch?.Compute(context);
+            var style = _style?.Compute(context);
+            var variant = _variant?.Compute(context);
+            var weight = _weight?.Compute(context);
             return new CssFontValue(style, variant, weight, stretch, size, lineHeight, fontFamilies);
         }
 
