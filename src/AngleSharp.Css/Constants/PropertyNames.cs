@@ -1693,6 +1693,16 @@ namespace AngleSharp.Css
         public static readonly String Scale = "scale";
 
         /// <summary>
+        /// The text-combine-upright declaration.
+        /// </summary>
+        public static readonly String TextCombineUpright = "text-combine-upright";
+
+        /// <summary>
+        /// The text-orientation declaration.
+        /// </summary>
+        public static readonly String TextOrientation = "text-orientation";
+
+        /// <summary>
         /// The scrollbar3d-light-color declaration.
         /// </summary>
         public static readonly String Scrollbar3dLightColor = "scrollbar3d-light-color";
