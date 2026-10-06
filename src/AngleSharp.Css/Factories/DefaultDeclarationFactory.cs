@@ -2095,6 +2095,20 @@ namespace AngleSharp.Css
                     flags: RubyPositionDeclaration.Flags)
             },
             {
+                TextCombineUprightDeclaration.Name, new DeclarationInfo(
+                    name: TextCombineUprightDeclaration.Name,
+                    converter: TextCombineUprightDeclaration.Converter,
+                    initialValue: TextCombineUprightDeclaration.InitialValue,
+                    flags: TextCombineUprightDeclaration.Flags)
+            },
+            {
+                TextOrientationDeclaration.Name, new DeclarationInfo(
+                    name: TextOrientationDeclaration.Name,
+                    converter: TextOrientationDeclaration.Converter,
+                    initialValue: TextOrientationDeclaration.InitialValue,
+                    flags: TextOrientationDeclaration.Flags)
+            },
+            {
                 ScaleDeclaration.Name, new DeclarationInfo(
                     name: ScaleDeclaration.Name,
                     converter: ScaleDeclaration.Converter,

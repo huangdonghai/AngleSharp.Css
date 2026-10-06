@@ -228,7 +228,10 @@ namespace AngleSharp.Css.Values
 
         ICssValue ICssValue.Compute(ICssComputeContext context)
         {
-            if (_unit != CssLengthValue.Unit.Px)
+            // A unitless number is not a length: it is what the parser produces for a value such as
+            // the line height of the font shorthand, where the number is a factor of the font size
+            // rather than a measurement. It cannot be expressed in pixels, so it is left as it is.
+            if (_unit != CssLengthValue.Unit.Px && _unit != CssLengthValue.Unit.None)
             {
                 var px = ToPixel(context.Device);
                 return new CssLengthValue(px, CssLengthValue.Unit.Px);
@@ -333,6 +336,12 @@ namespace AngleSharp.Css.Values
                     // the IRenderDevice meaning its always the root font size
                     CheckForValidRenderDimensionsForFont(renderDimensions);
                     return _value * renderDimensions.FontSize;
+                case Unit.Ex:
+                case Unit.Ch:
+                    // The x-height and the advance width of "0" are font metrics the render device
+                    // does not expose, so the conventional half em stands in for both.
+                    CheckForValidRenderDimensionsForFont(renderDimensions);
+                    return _value * renderDimensions.FontSize * 0.5;
                 case Unit.Vh:
                     CheckForValidRenderDimensions(renderDimensions, RenderMode.Vertical);
                     return _value * 0.01 * renderDimensions.RenderHeight;
