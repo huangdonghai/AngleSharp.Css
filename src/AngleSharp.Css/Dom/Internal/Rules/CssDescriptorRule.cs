@@ -42,6 +42,9 @@ namespace AngleSharp.Css.Dom
             return null;
         }
 
+        // A descriptor is never reached by way of a shorthand either.
+        public ICssProperty TryGetProperty(String propertyName) => GetProperty(propertyName);
+
         public String GetPropertyValue(String propertyName)
         {
             var property = GetProperty(propertyName);

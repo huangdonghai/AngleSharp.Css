@@ -42,6 +42,27 @@ namespace AngleSharp.Css.Dom
         ICssProperty? GetProperty(String propertyName);
 
         /// <summary>
+        /// Gets the property model for the name the declaration carries it under, or null when no
+        /// declaration here is it.
+        /// </summary>
+        /// <param name="propertyName">The name of the property to get.</param>
+        /// <returns>The stored property model, or null if there is none.</returns>
+        /// <remarks>
+        /// Unlike <see cref="GetProperty"/>, this one answers with null rather than with a property
+        /// built for the occasion, and it does not rebuild a name the declaration has the longhands of
+        /// but does not carry - which is what makes it cheap, and also what makes it answer less. What
+        /// it does answer, it answers as <see cref="GetProperty"/> would: the property the declaration
+        /// holds, or the longhand of a shorthand it holds.
+        /// <para>
+        /// Null therefore means "nothing here says anything about this name", and it is the caller's to
+        /// read: a name nothing declared, a name declared away from this declaration, and a name this
+        /// declaration holds only as longhands all arrive here, and only the caller knows which of them
+        /// it is looking at and whether <see cref="GetProperty"/> is worth its price to tell.
+        /// </para>
+        /// </remarks>
+        ICssProperty? TryGetProperty(String propertyName);
+
+        /// <summary>
         /// Returns the optional priority, "important" or null, if no priority
         /// has been set.
         /// </summary>

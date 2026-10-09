@@ -101,6 +101,46 @@ namespace AngleSharp.Css.Dom
             return GetPropertyShorthand(name);
         }
 
+        /// <summary>
+        /// Gets the property model for the name the declaration carries it under, or null when no
+        /// declaration here is it. See <see cref="ICssProperties.TryGetProperty"/> for what this
+        /// answers with, and what it costs next to <see cref="GetProperty"/>.
+        /// </summary>
+        public ICssProperty TryGetProperty(String name)
+        {
+            name = name.StartsWith("--", StringComparison.Ordinal) ? name : name.ToLowerFast();
+
+            if (_declarationIndex.TryGetValue(name, out var index) && index < _declarations.Count)
+            {
+                var declaration = _declarations[index];
+
+                if (declaration.Name.Is(name))
+                {
+                    return declaration;
+                }
+            }
+
+            // The one of GetProperty's two extras that is kept, because it is the only place the
+            // answer is written down: a longhand is in the shorthand the declaration carries, so
+            // `margin: 8px` is where `margin-top` comes from. A declaration with no candidate
+            // shorthand pays a dictionary lookup per name and nothing more.
+            var related = GetPropertyFromShorthand(name);
+
+            if (related is not null)
+            {
+                return related;
+            }
+
+            // What is skipped is GetPropertyShorthand, and with it the object GetProperty owes a
+            // caller: it rebuilds a shorthand out of the longhands at hand, forced, so that even a
+            // name nothing declared comes back as a property holding no value - which every caller
+            // then has to test, and which it rebuilds and discards again on the next read of the same
+            // name. Null is the answer here. A caller that wants a shorthand rebuilt has to say so by
+            // asking GetProperty: that is the case of a name a page writes as one and a declaration
+            // expands and so never carries, `gap` and `text-decoration` among them.
+            return null;
+        }
+
         public void SetParent(ICssRule parent) => _parent = parent;
 
         public void Update(String value)

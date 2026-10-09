@@ -46,6 +46,11 @@ namespace AngleSharp.Css.Dom
         public ICssProperty GetProperty(String propertyName) =>
             _declarations.Find(m => m.Name.Is(propertyName));
 
+        // Nothing here is reached by way of a shorthand, so there is nothing for the two to differ
+        // over beyond what they answer with when nothing was set.
+        public ICssProperty TryGetProperty(String propertyName) =>
+            _declarations.Find(m => m.Name.Is(propertyName));
+
         public String GetPropertyValue(String propertyName) => GetValue(propertyName);
 
         public String GetPropertyPriority(String propertyName) => null;
