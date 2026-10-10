@@ -80,8 +80,10 @@ namespace AngleSharp.Dom
         [DomName("getComputedStyle")]
         public static ICssStyleDeclaration GetComputedStyle(this IWindow window, IElement element, String? pseudo = null)
         {
-            var device = window.Document.Context.GetService<IRenderDevice>() ?? new DefaultRenderDevice();
-            var styleCollection = window.GetStyleCollection(device);
+            // A device is not required here - the cache keeps one slot per document for the case
+            // that none was registered, so the collection survives across calls either way.
+            var device = window.Document.Context.GetService<IRenderDevice>();
+            var styleCollection = StyleCollectionExtensions.GetDocumentStyleCollection(window.Document, device);
             return styleCollection.ComputeDeclarations(element, pseudo);
         }
 

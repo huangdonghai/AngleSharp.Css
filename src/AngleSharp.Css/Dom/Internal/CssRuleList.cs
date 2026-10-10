@@ -74,6 +74,7 @@ namespace AngleSharp.Css.Dom
         public void Clear()
         {
             _rules.Clear();
+            CssMutationRevision.Next();
         }
 
         public void RemoveAt(Int32 index)
@@ -98,6 +99,7 @@ namespace AngleSharp.Css.Dom
                 if (index >= 0)
                 {
                     _rules.RemoveAt(index);
+                    CssMutationRevision.Next();
                 }
             }
         }
@@ -126,6 +128,8 @@ namespace AngleSharp.Css.Dom
             {
                 _rules.Insert(actualIndex, rule);
             }
+
+            CssMutationRevision.Next();
         }
 
         public void Add(ICssRule rule)
@@ -133,6 +137,7 @@ namespace AngleSharp.Css.Dom
             if (rule != null)
             {
                 _rules.Add(rule);
+                CssMutationRevision.Next();
             }
         }
 
@@ -145,6 +150,11 @@ namespace AngleSharp.Css.Dom
 
             var oldLength = _rules.Count;
             _rules.AddRange(rules);
+
+            if (_rules.Count != oldLength)
+            {
+                CssMutationRevision.Next();
+            }
         }
 
         internal IEnumerable<IStyleFormattable> GetFormattables() => _rules;

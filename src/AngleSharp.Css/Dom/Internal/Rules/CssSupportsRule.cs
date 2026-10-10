@@ -56,6 +56,7 @@ namespace AngleSharp.Css.Dom
             }
 
             _condition = condition;
+            CssMutationRevision.Next();
             return true;
         }
 

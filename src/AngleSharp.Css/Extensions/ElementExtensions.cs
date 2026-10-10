@@ -132,8 +132,9 @@ namespace AngleSharp.Dom
             // repeated selector matching for the same elements.
             var document = element.Owner;
             var window = document?.DefaultView;
-            var device = window?.Document.Context.GetService<IRenderDevice>() ?? new DefaultRenderDevice();
-            var styleCollection = window is not null ? window.GetStyleCollection(device) : null;
+            var styleCollection = window is not null
+                ? StyleCollectionExtensions.GetDocumentStyleCollection(window.Document, window.Document.Context.GetService<IRenderDevice>())
+                : null;
             var styleCache = new Dictionary<IElement, ICssStyleDeclaration>();
 
             if (!hidden.HasValue)

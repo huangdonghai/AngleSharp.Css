@@ -24,15 +24,25 @@ namespace AngleSharp.Css
         /// <param name="window">The window to host the style collection.</param>
         /// <param name="renderDevice">The device to get the style collection for.</param>
         /// <returns>The device-bound style collection.</returns>
-        public static IStyleCollection GetStyleCollection(this IWindow window, IRenderDevice renderDevice)
+        public static IStyleCollection GetStyleCollection(this IWindow window, IRenderDevice renderDevice) =>
+            GetDocumentStyleCollection(window.Document, renderDevice);
+
+        /// <summary>
+        /// Gets the style collection of the given document, reusing a previously built one whenever
+        /// nothing it was derived from changed. A null device stands for "no render device was
+        /// registered", which is the state the style computation and innerText paths are in unless
+        /// the caller configured one.
+        /// </summary>
+        /// <param name="document">The document to get the style collection for.</param>
+        /// <param name="renderDevice">The render device to use, if any.</param>
+        /// <returns>The style collection.</returns>
+        internal static StyleCollection GetDocumentStyleCollection(IDocument document, IRenderDevice? renderDevice)
         {
-            var document = window.Document;
             var ctx = document.Context;
             var defaultStyleSheetProvider = ctx.GetServices<ICssDefaultStyleSheetProvider>();
             var defaultSheets = defaultStyleSheetProvider.Select(m => m.Default).Where(m => m != null);
             var currentSheets = document.GetStyleSheets().OfType<ICssStyleSheet>();
-            var stylesheets = defaultSheets.Concat(currentSheets);
-            return new StyleCollection(stylesheets, renderDevice);
+            return DocumentStyleCache.GetStyleCollection(document, renderDevice, defaultSheets.Concat(currentSheets));
         }
 
         /// <summary>
@@ -180,11 +190,21 @@ namespace AngleSharp.Css
 
             if (styles is StyleCollection collection)
             {
-                var rules = collection.GetRules();
+                // Only the rules that could possibly match the element are tested. The candidates
+                // come back in the very order the full walk below would have visited them in, so
+                // the resulting index of every match is unchanged.
+                var index = collection.GetBucketIndex();
+                var rules = index.Rules;
+                var candidates = index.CollectCandidates(element);
 
-                for (var i = 0; i < rules.Count; i++)
+                for (var i = 0; i < candidates.Count; i++)
                 {
-                    MapPriority(rules[i], element, scope, matches);
+                    var rule = rules[candidates[i]];
+
+                    if (rule.TryMatch(element, scope, out var specificity))
+                    {
+                        matches.Add(new RuleMatch(rule, specificity, matches.Count));
+                    }
                 }
             }
             else

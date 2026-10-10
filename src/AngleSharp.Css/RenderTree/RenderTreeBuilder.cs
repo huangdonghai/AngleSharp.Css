@@ -18,6 +18,7 @@ namespace AngleSharp.Css.RenderTree
         private readonly IWindow _window;
         private readonly List<ICssStyleSheet> _defaultSheets;
         private readonly Dictionary<IElement, ICssStyleDeclaration> _cascadedStyles = new();
+        private IRenderDevice? _defaultDevice;
 
         private RenderTreeBuilder(IWindow window)
         {
@@ -28,7 +29,9 @@ namespace AngleSharp.Css.RenderTree
             _window = window;
         }
 
-        public IRenderDevice DefaultDevice => _context.GetService<IRenderDevice>() ?? new DefaultRenderDevice();
+        // Resolved once: the document level style cache keys on the device instance, so handing out
+        // a fresh one on every access would keep it from ever being reused.
+        public IRenderDevice DefaultDevice => _defaultDevice ??= _context.GetService<IRenderDevice>() ?? new DefaultRenderDevice();
 
         public static RenderTreeBuilder GetInstance(IWindow window) => _windowRenderTrees.GetValue(window, (IWindow w) => new RenderTreeBuilder(w));
 
@@ -72,8 +75,7 @@ namespace AngleSharp.Css.RenderTree
         {
             var document = _window.Document;
             var currentSheets = document.GetStyleSheets().OfType<ICssStyleSheet>();
-            var stylesheets = _defaultSheets.Concat(currentSheets).ToList();
-            return new StyleCollection(stylesheets, device);
+            return DocumentStyleCache.GetStyleCollection(document, device, _defaultSheets.Concat(currentSheets));
         }
 
         private ElementRenderNode RenderElement(

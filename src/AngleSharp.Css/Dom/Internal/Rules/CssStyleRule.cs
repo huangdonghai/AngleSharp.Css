@@ -22,6 +22,8 @@ namespace AngleSharp.Css.Dom
         private readonly CssRuleList _rules;
         private ISelector _selector;
         private ISelector[] _selectorList;
+        private SelectorKey[]? _selectorKeys;
+        private Boolean _selectorKeysComputed;
         private Boolean _nested;
 
         #endregion
@@ -83,6 +85,7 @@ namespace AngleSharp.Css.Dom
         internal void SetInvalidSelector(String selectorText)
         {
             _selector = new InvalidSelector(selectorText);
+            InvalidateSelectorKeys();
         }
 
         protected override void ReplaceWith(ICssRule rule)
@@ -159,6 +162,29 @@ namespace AngleSharp.Css.Dom
             _selectorList = null;
             _selector = value;
             value?.Accept(this);
+            InvalidateSelectorKeys();
+            CssMutationRevision.Next();
+        }
+
+        /// <summary>
+        /// Gets the essential keys of this rule's selector, or null when the rule has to be
+        /// considered for every element. Computed on demand and cached until the selector changes.
+        /// </summary>
+        internal SelectorKey[]? GetSelectorKeys()
+        {
+            if (!_selectorKeysComputed)
+            {
+                _selectorKeys = SelectorKeyExtractor.Extract(_selector);
+                _selectorKeysComputed = true;
+            }
+
+            return _selectorKeys;
+        }
+
+        private void InvalidateSelectorKeys()
+        {
+            _selectorKeys = null;
+            _selectorKeysComputed = false;
         }
 
         void ISelectorVisitor.Attribute(string name, string op, string value)

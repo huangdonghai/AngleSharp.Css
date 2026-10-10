@@ -46,6 +46,7 @@ namespace AngleSharp.Css.Dom
                     throw new DomException(DomError.InvalidModification);
 
                 ReplaceWith(rule);
+                CssMutationRevision.Next();
             }
         }
 

@@ -12,6 +12,7 @@ namespace AngleSharp.Css.Dom
         private readonly IEnumerable<ICssStyleSheet> _sheets;
         private readonly IRenderDevice _device;
         private List<ICssStyleRule>? _rules;
+        private StyleRuleBucketIndex? _bucketIndex;
 
         #endregion
 
@@ -44,6 +45,13 @@ namespace AngleSharp.Css.Dom
         /// element, and for every one of its ancestors.
         /// </summary>
         internal List<ICssStyleRule> GetRules() => _rules ??= CollectRules();
+
+        /// <summary>
+        /// Gets the bucket index over the rules of this collection. Built on demand and reused for
+        /// the lifetime of the collection, which spans a single cascade or render pass - or longer,
+        /// when the collection comes out of the document level cache.
+        /// </summary>
+        internal StyleRuleBucketIndex GetBucketIndex() => _bucketIndex ??= StyleRuleBucketIndex.Build(GetRules());
 
         #endregion
 

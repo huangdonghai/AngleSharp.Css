@@ -69,12 +69,14 @@ namespace AngleSharp.Css.Dom
             }
 
             _media.AddRange(media.Select(m => m ?? replacementMedium));
+            CssMutationRevision.Next();
         }
 
         public void Add(String newMedium)
         {
             var medium = MediumParser.Parse(newMedium, ValidatorFactory) ?? throw new DomException(DomError.Syntax);
             _media.Add(medium);
+            CssMutationRevision.Next();
         }
 
         public void Remove(String oldMedium)
@@ -86,6 +88,7 @@ namespace AngleSharp.Css.Dom
                 if (_media[i].Equals(medium))
                 {
                     _media.RemoveAt(i);
+                    CssMutationRevision.Next();
                     return;
                 }
             }
@@ -97,6 +100,7 @@ namespace AngleSharp.Css.Dom
         {
             _media.Clear();
             _media.AddRange(media);
+            CssMutationRevision.Next();
         }
 
         public void ToCss(TextWriter writer, IStyleFormatter formatter)
