@@ -31,6 +31,18 @@ namespace AngleSharp.Css.Dom
         /// </summary>
         SpaceAround,
         /// <summary>
+        /// Fill with equal space between and around content.
+        /// </summary>
+        SpaceEvenly,
+        /// <summary>
+        /// Align against the start edge of its own writing mode.
+        /// </summary>
+        SelfStart,
+        /// <summary>
+        /// Align against the end edge of its own writing mode.
+        /// </summary>
+        SelfEnd,
+        /// <summary>
         /// Stretch to fill.
         /// </summary>
         Stretch,

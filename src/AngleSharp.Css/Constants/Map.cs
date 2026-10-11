@@ -877,10 +877,15 @@ namespace AngleSharp.Css
         public static readonly Dictionary<String, FlexContentMode> JustifyContentModes = new(StringComparer.OrdinalIgnoreCase)
         {
             { CssKeywords.FlexStart, FlexContentMode.Start },
+            { CssKeywords.Start, FlexContentMode.Start },
             { CssKeywords.FlexEnd, FlexContentMode.End },
+            { CssKeywords.End, FlexContentMode.End },
+            { CssKeywords.Left, FlexContentMode.Start },
+            { CssKeywords.Right, FlexContentMode.End },
             { CssKeywords.Center, FlexContentMode.Center },
             { CssKeywords.SpaceBetween, FlexContentMode.SpaceBetween },
             { CssKeywords.SpaceAround, FlexContentMode.SpaceAround },
+            { CssKeywords.SpaceEvenly, FlexContentMode.SpaceEvenly },
         };
 
         /// <summary>
@@ -889,11 +894,15 @@ namespace AngleSharp.Css
         public static readonly Dictionary<String, FlexContentMode> AlignContentModes = new(StringComparer.OrdinalIgnoreCase)
         {
             { CssKeywords.FlexStart, FlexContentMode.Start },
+            { CssKeywords.Start, FlexContentMode.Start },
             { CssKeywords.FlexEnd, FlexContentMode.End },
+            { CssKeywords.End, FlexContentMode.End },
             { CssKeywords.Center, FlexContentMode.Center },
             { CssKeywords.SpaceBetween, FlexContentMode.SpaceBetween },
             { CssKeywords.SpaceAround, FlexContentMode.SpaceAround },
+            { CssKeywords.SpaceEvenly, FlexContentMode.SpaceEvenly },
             { CssKeywords.Stretch, FlexContentMode.Stretch },
+            { CssKeywords.Baseline, FlexContentMode.Baseline },
         };
 
         /// <summary>
@@ -902,9 +911,13 @@ namespace AngleSharp.Css
         public static readonly Dictionary<String, FlexContentMode> AlignItemsModes = new(StringComparer.OrdinalIgnoreCase)
         {
             { CssKeywords.FlexStart, FlexContentMode.Start },
+            { CssKeywords.Start, FlexContentMode.Start },
             { CssKeywords.FlexEnd, FlexContentMode.End },
+            { CssKeywords.End, FlexContentMode.End },
             { CssKeywords.Center, FlexContentMode.Center },
             { CssKeywords.Baseline, FlexContentMode.Baseline },
+            { CssKeywords.SelfStart, FlexContentMode.SelfStart },
+            { CssKeywords.SelfEnd, FlexContentMode.SelfEnd },
             { CssKeywords.Stretch, FlexContentMode.Stretch },
         };
 
@@ -915,9 +928,13 @@ namespace AngleSharp.Css
         {
             { CssKeywords.Auto, FlexContentMode.Auto },
             { CssKeywords.FlexStart, FlexContentMode.Start },
+            { CssKeywords.Start, FlexContentMode.Start },
             { CssKeywords.FlexEnd, FlexContentMode.End },
+            { CssKeywords.End, FlexContentMode.End },
             { CssKeywords.Center, FlexContentMode.Center },
             { CssKeywords.Baseline, FlexContentMode.Baseline },
+            { CssKeywords.SelfStart, FlexContentMode.SelfStart },
+            { CssKeywords.SelfEnd, FlexContentMode.SelfEnd },
             { CssKeywords.Stretch, FlexContentMode.Stretch },
         };
 
@@ -927,7 +944,9 @@ namespace AngleSharp.Css
         public static readonly Dictionary<String, FlexContentMode> JustifyItemsModes = new(StringComparer.OrdinalIgnoreCase)
         {
             { CssKeywords.FlexStart, FlexContentMode.Start },
+            { CssKeywords.Start, FlexContentMode.Start },
             { CssKeywords.FlexEnd, FlexContentMode.End },
+            { CssKeywords.End, FlexContentMode.End },
             { CssKeywords.Center, FlexContentMode.Center },
             { CssKeywords.Baseline, FlexContentMode.Baseline },
             { CssKeywords.Stretch, FlexContentMode.Stretch },
@@ -940,7 +959,9 @@ namespace AngleSharp.Css
         {
             { CssKeywords.Auto, FlexContentMode.Auto },
             { CssKeywords.FlexStart, FlexContentMode.Start },
+            { CssKeywords.Start, FlexContentMode.Start },
             { CssKeywords.FlexEnd, FlexContentMode.End },
+            { CssKeywords.End, FlexContentMode.End },
             { CssKeywords.Center, FlexContentMode.Center },
             { CssKeywords.Baseline, FlexContentMode.Baseline },
             { CssKeywords.Stretch, FlexContentMode.Stretch },

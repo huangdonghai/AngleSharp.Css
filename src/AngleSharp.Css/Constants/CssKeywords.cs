@@ -493,6 +493,11 @@ namespace AngleSharp.Css
         public static readonly String SpaceBetween = "space-between";
 
         /// <summary>
+        /// The space-evenly keyword.
+        /// </summary>
+        public static readonly String SpaceEvenly = "space-evenly";
+
+        /// <summary>
         /// The stretch keyword.
         /// </summary>
         public static readonly String Stretch = "stretch";

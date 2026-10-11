@@ -33,7 +33,26 @@ namespace AngleSharp.Css.Declarations
 
             public ICssValue Convert(StringSource source)
             {
-                return converter.Convert(source);
+                var start = source.Index;
+                var converted = converter.Convert(source);
+
+                // `none` is one of the three forms the shorthand takes, and the only one that is not
+                // a tuple of the longhands - so it is the only one Split cannot answer, and a
+                // shorthand that cannot be split is stored as nothing at all: `flex: none` would
+                // vanish, and the item would read at its initials, a shrink of one where none meant
+                // zero. The keyword is handed on as the longhands it stands for.
+                if (converted is not CssTupleValue &&
+                    source.Content.Substring(start, source.Index - start).Trim().ToLowerInvariant() is "none")
+                {
+                    return new CssTupleValue(new[]
+                    {
+                        new CssNumberValue(0),
+                        new CssNumberValue(0),
+                        FlexBasisDeclaration.InitialValue,
+                    });
+                }
+
+                return converted;
             }
 
             public ICssValue Merge(ICssValue[] values)
