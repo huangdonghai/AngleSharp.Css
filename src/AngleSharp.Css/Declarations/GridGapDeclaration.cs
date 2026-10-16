@@ -48,10 +48,12 @@ namespace AngleSharp.Css.Declarations
             {
                 if (value is CssTupleValue list)
                 {
+                    // The same fallback as GapAggregagtor.Split: an omitted column gap is the row's
+                    // own value (css-gaps-1 §2.2), and `grid-gap` is the legacy alias of `gap` (§2.4).
                     return new[]
                     {
                         list.Items[0],
-                        list.Items[1],
+                        list.Items[1] ?? list.Items[0],
                     };
                 }
 

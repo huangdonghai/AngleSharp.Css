@@ -50,10 +50,16 @@ namespace AngleSharp.Css.Declarations
             {
                 if (value is CssTupleValue list)
                 {
+                    // `gap: <row>` sets the column gap to the row's own value - css-gaps-1 §2.2: "If
+                    // <'column-gap'> is omitted, it's set to the same value as <'row-gap'>." Splitting
+                    // the tuple as written left the column longhand holding nothing at all, and a
+                    // longhand with no value is also what a lone `row-gap` leaves behind - so a reader
+                    // could not tell a declaration that meant both axes from one that meant the row
+                    // alone, and had to answer both axes with the row's value to stay usable.
                     return new[]
                     {
                         list.Items[0],
-                        list.Items[1],
+                        list.Items[1] ?? list.Items[0],
                     };
                 }
 
