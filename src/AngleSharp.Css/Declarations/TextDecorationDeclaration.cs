@@ -14,7 +14,8 @@ namespace AngleSharp.Css.Declarations
             WithAny(
                 ColorConverter.Option(InitialValues.TextDecorationColorDecl),
                 TextDecorationStyleConverter.Option(InitialValues.TextDecorationStyleDecl),
-                TextDecorationLinesConverter.Option(InitialValues.TextDecorationLineDecl)));
+                TextDecorationLinesConverter.Option(InitialValues.TextDecorationLineDecl),
+                TextDecorationThicknessConverter.Option(InitialValues.TextDecorationThicknessDecl)));
 
         public static ICssValue InitialValue = null;
 
@@ -25,6 +26,7 @@ namespace AngleSharp.Css.Declarations
             PropertyNames.TextDecorationColor,
             PropertyNames.TextDecorationStyle,
             PropertyNames.TextDecorationLine,
+            PropertyNames.TextDecorationThickness,
         };
     }
 }

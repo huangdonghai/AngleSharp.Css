@@ -224,6 +224,31 @@ namespace AngleSharp.Css.Tests.Declarations
         }
 
         [Test]
+        public void CssTextDecorationLegalWithThickness()
+        {
+            var snippet = "text-decoration: 2px green underline";
+            var property = ParseDeclaration(snippet);
+            Assert.AreEqual("text-decoration", property.Name);
+            Assert.IsTrue(property.HasValue);
+            Assert.IsFalse(property.IsInherited);
+            Assert.IsFalse(property.IsImportant);
+        }
+
+        [Test]
+        public void CssTextDecorationThicknessExpandsCorrectly()
+        {
+            var source = @"<!DOCTYPE html>
+<html>
+<head><title></title></head>
+<body style=""text-decoration: 2px green underline;""></body>
+</html>";
+            var document = source.ToHtmlDocument(Configuration.Default.WithCss());
+            var styleDeclaration = document.Body!.ComputeCurrentStyle();
+            Assert.AreEqual("2px", styleDeclaration.GetPropertyValue("text-decoration-thickness"));
+            Assert.AreEqual("underline", styleDeclaration.GetTextDecorationLine());
+        }
+
+        [Test]
         public void CssTextDecorationColorLegalHex()
         {
             var snippet = "text-decoration-color: #F00";
