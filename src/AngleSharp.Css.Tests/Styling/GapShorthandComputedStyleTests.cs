@@ -1,6 +1,7 @@
 #nullable disable
 namespace AngleSharp.Css.Tests.Styling
 {
+    using AngleSharp.Css.Dom;
     using AngleSharp.Dom;
     using NUnit.Framework;
     using static CssConstructionFunctions;
@@ -58,8 +59,8 @@ namespace AngleSharp.Css.Tests.Styling
 
             // The same read the renderer's fused path makes: the longhand out of the shorthand
             // declaration the cascade holds, before anything is computed.
-            Assert.AreEqual("10px", target.Style.TryGetProperty("row-gap").Value);
-            Assert.AreEqual("10px", target.Style.TryGetProperty("column-gap").Value);
+            Assert.AreEqual("10px", target.GetStyle().TryGetProperty("row-gap").Value);
+            Assert.AreEqual("10px", target.GetStyle().TryGetProperty("column-gap").Value);
         }
 
         [Test]
@@ -83,8 +84,8 @@ namespace AngleSharp.Css.Tests.Styling
             var document = ParseDocument("<div id=target style=\"column-gap: 24px;\"></div>");
             var target = document.GetElementById("target");
 
-            Assert.IsNull(target.Style.TryGetProperty("row-gap"));
-            Assert.AreEqual("24px", target.Style.TryGetProperty("column-gap").Value);
+            Assert.IsNull(target.GetStyle().TryGetProperty("row-gap"));
+            Assert.AreEqual("24px", target.GetStyle().TryGetProperty("column-gap").Value);
         }
     }
 }

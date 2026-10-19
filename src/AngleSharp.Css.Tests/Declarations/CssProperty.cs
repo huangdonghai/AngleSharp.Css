@@ -399,6 +399,66 @@ namespace AngleSharp.Css.Tests.Declarations
         }
 
         [Test]
+        public void CssColorBangWithSpaceImportantLegal()
+        {
+            // CSS Syntax 3 §5.4.3: the annotation is a mark, any white space, and the keyword.
+            var snippet = "color: red ! important";
+            var property = ParseDeclaration(snippet);
+            Assert.AreEqual("color", property.Name);
+            Assert.IsTrue(property.IsImportant);
+            Assert.IsTrue(property.HasValue);
+            Assert.AreEqual("rgba(255, 0, 0, 1)", property.Value);
+        }
+
+        [Test]
+        public void CssColorBangWithTwoSpacesAndCapitalKeywordLegal()
+        {
+            var snippet = "color: red !  IMPORTANT ";
+            var property = ParseDeclaration(snippet);
+            Assert.AreEqual("color", property.Name);
+            Assert.IsTrue(property.IsImportant);
+            Assert.IsTrue(property.HasValue);
+            Assert.AreEqual("rgba(255, 0, 0, 1)", property.Value);
+        }
+
+        [Test]
+        public void CssColorBangWithUnknownKeywordInvalid()
+        {
+            // The annotation is only the keyword, and an unknown one takes the declaration with it rather
+            // than being read as a value.
+            var snippet = "color: red !imp";
+            var property = ParseDeclaration(snippet);
+            Assert.AreEqual("color", property?.Name);
+            Assert.IsFalse(property!.HasValue, "an unknown annotation leaves no value behind");
+            Assert.IsFalse(property.IsImportant);
+        }
+
+        [Test]
+        public void CssFontFamilyEndingInImportantLegal()
+        {
+            // Letters that merely end in the keyword are the value, not the annotation: the mark has to
+            // stand in front of them.
+            var snippet = "font-family: serif important";
+            var property = ParseDeclaration(snippet);
+            Assert.AreEqual("font-family", property.Name);
+            Assert.IsFalse(property.IsImportant);
+            Assert.IsTrue(property.HasValue);
+            Assert.AreEqual("serif important", property.Value);
+        }
+
+        [Test]
+        public void CssContentQuotedBangImportantIsTheValue()
+        {
+            // A mark inside a string cannot open the annotation, and the closing quote stands between the
+            // two here.
+            var snippet = "content: \"!important\"";
+            var property = ParseDeclaration(snippet);
+            Assert.AreEqual("content", property.Name);
+            Assert.IsFalse(property.IsImportant);
+            Assert.IsTrue(property.HasValue);
+        }
+
+        [Test]
         public void CssBoxShadowOffsetColorLegal()
         {
             var snippet = "box-shadow:  5px 4px #000";

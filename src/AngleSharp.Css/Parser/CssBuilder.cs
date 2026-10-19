@@ -923,29 +923,51 @@ namespace AngleSharp.Css.Parser
 
         #region Fill Inner
 
+        /// <summary>
+        /// Takes the declaration's value, with the important annotation off its end when it carries one.
+        /// </summary>
+        /// <remarks>
+        /// CSS Syntax 3 §5.4.3 writes the annotation as an exclamation mark, any amount of white space,
+        /// and the keyword, which is the keyword whatever its case. <c>!important</c> and
+        /// <c>! important</c> are therefore the same annotation, and a value that merely ends in those
+        /// letters - <c>serif important</c> - carries one only where the mark stands in front of them. A
+        /// mark inside a quoted string cannot be the annotation either, since the string's closing quote
+        /// then stands between the mark and the end of the value.
+        /// </remarks>
         private String CreateValue(ref CssToken token, out Boolean important)
         {
-            var keyword = CssKeywords.BangImportant;
             var value = _tokenizer.ContentFrom(token.Position.Position);
-            var keywordStart = value.Length - keyword.Length;
-            important = keywordStart >= 0 &&
-                value[keywordStart] == Symbols.ExclamationMark &&
-                String.Compare(value, keywordStart, keyword, 0, keyword.Length, StringComparison.OrdinalIgnoreCase) == 0;
-            token = NextToken();
+            var end = TrimEnd(value, value.Length);
+            var keyword = CssKeywords.Important;
+            var at = end - keyword.Length;
 
-            if (!important)
+            important = false;
+
+            if (at >= 0 &&
+                String.Compare(value, at, keyword, 0, keyword.Length, StringComparison.OrdinalIgnoreCase) == 0)
             {
-                return value;
+                var mark = TrimEnd(value, at);
+
+                if (mark > 0 && value[mark - 1] == Symbols.ExclamationMark)
+                {
+                    important = true;
+                    end = TrimEnd(value, mark - 1);
+                }
             }
 
-            var end = keywordStart;
+            token = NextToken();
+            return value.Substring(0, end);
+        }
 
+        /// <summary>Gets how far the value reaches before the white space that ends at <paramref name="end"/>.</summary>
+        private static Int32 TrimEnd(String value, Int32 end)
+        {
             while (end > 0 && value[end - 1].IsSpaceCharacter())
             {
                 end--;
             }
 
-            return value.Substring(0, end);
+            return end;
         }
 
         private String GetArgument(ref CssToken token)
