@@ -13,6 +13,7 @@ namespace AngleSharp.Css.Values
         #region Fields
 
         private readonly String _attribute;
+        private readonly String _fallback;
 
         #endregion
 
@@ -23,8 +24,20 @@ namespace AngleSharp.Css.Values
         /// </summary>
         /// <param name="attribute">The referenced attribute name.</param>
         public CssAttrValue(String attribute)
+            : this(attribute, null)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new attr function call that states what to read where the element has no such
+        /// attribute.
+        /// </summary>
+        /// <param name="attribute">The referenced attribute name.</param>
+        /// <param name="fallback">The text standing for an attribute that is not there.</param>
+        public CssAttrValue(String attribute, String fallback)
         {
             _attribute = attribute;
+            _fallback = fallback;
         }
 
         #endregion
@@ -37,6 +50,12 @@ namespace AngleSharp.Css.Values
         public String Attribute => _attribute;
 
         /// <summary>
+        /// Gets the text asked for an element that carries no such attribute, or null where the page stated
+        /// none.
+        /// </summary>
+        public String Fallback => _fallback;
+
+        /// <summary>
         /// Gets the name of the function.
         /// </summary>
         public String Name => FunctionNames.Attr;
@@ -44,12 +63,14 @@ namespace AngleSharp.Css.Values
         /// <summary>
         /// Gets the arguments.
         /// </summary>
-        public ICssValue[] Arguments => new ICssValue[] { new CssIdentifierValue(_attribute) };
+        public ICssValue[] Arguments => _fallback is null ?
+            new ICssValue[] { new CssIdentifierValue(_attribute) } :
+            new ICssValue[] { new CssIdentifierValue(_attribute), new CssStringValue(_fallback) };
 
         /// <summary>
         /// Gets the CSS text representation.
         /// </summary>
-        public String CssText => Name.CssFunction(_attribute);
+        public String CssText => Name.CssFunction(_fallback is null ? _attribute : String.Concat(_attribute, ", ", _fallback.CssString()));
 
         #endregion
 
@@ -60,7 +81,9 @@ namespace AngleSharp.Css.Values
         /// </summary>
         /// <param name="other">The value to check against.</param>
         /// <returns>True if both are equal, otherwise false.</returns>
-        public Boolean Equals(CssAttrValue other) => other is not null && _attribute == other._attribute;
+        public Boolean Equals(CssAttrValue other) => other is not null &&
+            _attribute == other._attribute &&
+            _fallback == other._fallback;
 
         Boolean IEquatable<ICssValue>.Equals(ICssValue other) => other is CssAttrValue value && Equals(value);
 

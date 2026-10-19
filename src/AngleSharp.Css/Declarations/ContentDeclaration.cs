@@ -55,6 +55,7 @@ namespace AngleSharp.Css.Declarations
             public ICssValue Convert(StringSource source)
             {
                 var modes = default(ICssValue[]);
+                var alternative = default(String);
 
                 if (source.IsIdentifier(CssKeywords.Normal))
                 {
@@ -70,6 +71,24 @@ namespace AngleSharp.Css.Declarations
 
                     while (!source.IsDone)
                     {
+                        // Content 3 §1.2: what stands after the slash is the alternative text, spoken in
+                        // place of what is drawn. It is no part of the content, but it is part of the
+                        // value - and a declaration that spells it is not therefore invalid.
+                        if (source.Current == Symbols.Solidus)
+                        {
+                            source.SkipCurrentAndSpaces();
+
+                            alternative = source.ParseString();
+
+                            if (alternative is null)
+                            {
+                                return null;
+                            }
+
+                            source.SkipSpacesAndComments();
+                            break;
+                        }
+
                         var t = source.ParseString();
 
                         if (t != null)
@@ -101,7 +120,7 @@ namespace AngleSharp.Css.Declarations
 
                         if (a != null)
                         {
-                            ms.Add(new AttributeContentMode(a.Attribute));
+                            ms.Add(new AttributeContentMode(a));
                             source.SkipSpacesAndComments();
                             continue;
                         }
@@ -124,7 +143,7 @@ namespace AngleSharp.Css.Declarations
 
                 if (modes != null)
                 {
-                    return new ContentValue(modes);
+                    return new ContentValue(modes, alternative);
                 }
 
                 return null;
@@ -133,10 +152,17 @@ namespace AngleSharp.Css.Declarations
             internal sealed class ContentValue : ICssValue, IEquatable<ContentValue>
             {
                 private readonly ICssValue[] _modes;
+                private readonly String _alternative;
 
                 public ContentValue(ICssValue[] modes)
+                    : this(modes, null)
+                {
+                }
+
+                public ContentValue(ICssValue[] modes, String alternative)
                 {
                     _modes = modes;
+                    _alternative = alternative;
                 }
 
                 /// <summary>
@@ -149,22 +175,25 @@ namespace AngleSharp.Css.Declarations
                 /// Resolves every mode's own text contribution against <paramref name="element"/> and
                 /// concatenates them - the same per-mode <see cref="ContentMode.Stringify(IElement)"/>
                 /// this converter's modes already implement (e.g. <see cref="AttributeContentMode"/>
-                /// reading a live attribute), just not previously reachable from outside this type.
+                /// reading a live attribute), just not previously reachable from outside this type. The
+                /// alternative text is not drawn, so it contributes nothing here.
                 /// </summary>
                 public String Stringify(IElement element) => String.Concat(_modes.OfType<ContentMode>().Select(mode => mode.Stringify(element)));
 
-                public String CssText => _modes.Length == 0 ? CssKeywords.None : _modes.Join(" ");
+                public String CssText => _modes.Length == 0 ?
+                    CssKeywords.None :
+                    _alternative is null ? _modes.Join(" ") : String.Concat(_modes.Join(" "), " / ", _alternative.CssString());
 
                 public ICssValue Compute(ICssComputeContext context)
                 {
                     var modes = _modes.Select(mode => mode.Compute(context)).ToArray();
-                    return new ContentValue(modes);
+                    return new ContentValue(modes, _alternative);
                 }
                 public Boolean Equals(ContentValue other)
                 {
                     var l = _modes.Length;
 
-                    if (l == other._modes.Length)
+                    if (l == other._modes.Length && _alternative == other._alternative)
                     {
                         for (var i = 0; i < l; i++)
                         {
@@ -311,30 +340,25 @@ namespace AngleSharp.Css.Declarations
 
             /// <summary>
             /// Returns the value of the element's attribute X as a string. If
-            /// there is no attribute X, an empty string is returned.
+            /// there is no attribute X, the text the page asked for stands - or nothing, where it
+            /// stated none.
             /// </summary>
             private sealed class AttributeContentMode : ContentMode
             {
-                private readonly String _attribute;
+                private readonly CssAttrValue _attr;
 
-                public AttributeContentMode(String attribute)
+                public AttributeContentMode(CssAttrValue attr)
                 {
-                    _attribute = attribute;
+                    _attr = attr;
                 }
 
-                public override String GetCssText() => FunctionNames.Attr.CssFunction(_attribute);
+                public override String GetCssText() => _attr.CssText;
 
-                public override String Stringify(IElement element) => element.GetAttribute(_attribute) ?? String.Empty;
+                public override String Stringify(IElement element) =>
+                    element.GetAttribute(_attr.Attribute) ?? _attr.Fallback ?? String.Empty;
 
-                public override Boolean Equals(ICssValue other)
-                {
-                    if (other is AttributeContentMode o)
-                    {
-                        return _attribute.Equals(o._attribute);
-                    }
-
-                    return false;
-                }
+                public override Boolean Equals(ICssValue other) =>
+                    other is AttributeContentMode o && _attr.Equals(o._attr);
             }
 
             /// <summary>

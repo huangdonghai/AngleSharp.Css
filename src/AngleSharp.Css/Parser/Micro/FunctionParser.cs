@@ -27,6 +27,20 @@ namespace AngleSharp.Css.Parser
                 {
                     return new CssAttrValue(content);
                 }
+
+                // Content 3 §10.5 lets the page state the text to stand where an attribute it has not got
+                // would have been. A typed reading of the attribute is not taken here, which is what it was
+                // before as well: the argument after the comma has to be a string.
+                if (content != null && f == Symbols.Comma)
+                {
+                    var fallback = source.ParseString();
+                    var closing = source.SkipGetSkip();
+
+                    if (fallback != null && closing == Symbols.RoundBracketClose)
+                    {
+                        return new CssAttrValue(content, fallback);
+                    }
+                }
             }
 
             return null;
