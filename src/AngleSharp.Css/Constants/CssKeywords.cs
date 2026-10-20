@@ -413,6 +413,11 @@ namespace AngleSharp.Css
         public static readonly String Intersection = "intersection";
 
         /// <summary>
+        /// The overlap-join keyword.
+        /// </summary>
+        public static readonly String OverlapJoin = "overlap-join";
+
+        /// <summary>
         /// The avoid-page keyword.
         /// </summary>
         public static readonly String AvoidPage = "avoid-page";

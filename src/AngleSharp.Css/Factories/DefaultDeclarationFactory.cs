@@ -1275,6 +1275,102 @@ namespace AngleSharp.Css
                     shorthands: RowRuleBreakDeclaration.Shorthands)
             },
             {
+                ColumnRuleInsetStartDeclaration.Name, new DeclarationInfo(
+                    name: ColumnRuleInsetStartDeclaration.Name,
+                    converter: ColumnRuleInsetStartDeclaration.Converter,
+                    initialValue: ColumnRuleInsetStartDeclaration.InitialValue,
+                    flags: ColumnRuleInsetStartDeclaration.Flags,
+                    shorthands: ColumnRuleInsetStartDeclaration.Shorthands)
+            },
+            {
+                ColumnRuleInsetEndDeclaration.Name, new DeclarationInfo(
+                    name: ColumnRuleInsetEndDeclaration.Name,
+                    converter: ColumnRuleInsetEndDeclaration.Converter,
+                    initialValue: ColumnRuleInsetEndDeclaration.InitialValue,
+                    flags: ColumnRuleInsetEndDeclaration.Flags,
+                    shorthands: ColumnRuleInsetEndDeclaration.Shorthands)
+            },
+            {
+                RowRuleInsetStartDeclaration.Name, new DeclarationInfo(
+                    name: RowRuleInsetStartDeclaration.Name,
+                    converter: RowRuleInsetStartDeclaration.Converter,
+                    initialValue: RowRuleInsetStartDeclaration.InitialValue,
+                    flags: RowRuleInsetStartDeclaration.Flags,
+                    shorthands: RowRuleInsetStartDeclaration.Shorthands)
+            },
+            {
+                RowRuleInsetEndDeclaration.Name, new DeclarationInfo(
+                    name: RowRuleInsetEndDeclaration.Name,
+                    converter: RowRuleInsetEndDeclaration.Converter,
+                    initialValue: RowRuleInsetEndDeclaration.InitialValue,
+                    flags: RowRuleInsetEndDeclaration.Flags,
+                    shorthands: RowRuleInsetEndDeclaration.Shorthands)
+            },
+            {
+                ColumnRuleInsetCapStartDeclaration.Name, new DeclarationInfo(
+                    name: ColumnRuleInsetCapStartDeclaration.Name,
+                    converter: ColumnRuleInsetCapStartDeclaration.Converter,
+                    initialValue: ColumnRuleInsetCapStartDeclaration.InitialValue,
+                    flags: ColumnRuleInsetCapStartDeclaration.Flags,
+                    shorthands: ColumnRuleInsetCapStartDeclaration.Shorthands)
+            },
+            {
+                ColumnRuleInsetCapEndDeclaration.Name, new DeclarationInfo(
+                    name: ColumnRuleInsetCapEndDeclaration.Name,
+                    converter: ColumnRuleInsetCapEndDeclaration.Converter,
+                    initialValue: ColumnRuleInsetCapEndDeclaration.InitialValue,
+                    flags: ColumnRuleInsetCapEndDeclaration.Flags,
+                    shorthands: ColumnRuleInsetCapEndDeclaration.Shorthands)
+            },
+            {
+                ColumnRuleInsetJunctionStartDeclaration.Name, new DeclarationInfo(
+                    name: ColumnRuleInsetJunctionStartDeclaration.Name,
+                    converter: ColumnRuleInsetJunctionStartDeclaration.Converter,
+                    initialValue: ColumnRuleInsetJunctionStartDeclaration.InitialValue,
+                    flags: ColumnRuleInsetJunctionStartDeclaration.Flags,
+                    shorthands: ColumnRuleInsetJunctionStartDeclaration.Shorthands)
+            },
+            {
+                ColumnRuleInsetJunctionEndDeclaration.Name, new DeclarationInfo(
+                    name: ColumnRuleInsetJunctionEndDeclaration.Name,
+                    converter: ColumnRuleInsetJunctionEndDeclaration.Converter,
+                    initialValue: ColumnRuleInsetJunctionEndDeclaration.InitialValue,
+                    flags: ColumnRuleInsetJunctionEndDeclaration.Flags,
+                    shorthands: ColumnRuleInsetJunctionEndDeclaration.Shorthands)
+            },
+            {
+                RowRuleInsetCapStartDeclaration.Name, new DeclarationInfo(
+                    name: RowRuleInsetCapStartDeclaration.Name,
+                    converter: RowRuleInsetCapStartDeclaration.Converter,
+                    initialValue: RowRuleInsetCapStartDeclaration.InitialValue,
+                    flags: RowRuleInsetCapStartDeclaration.Flags,
+                    shorthands: RowRuleInsetCapStartDeclaration.Shorthands)
+            },
+            {
+                RowRuleInsetCapEndDeclaration.Name, new DeclarationInfo(
+                    name: RowRuleInsetCapEndDeclaration.Name,
+                    converter: RowRuleInsetCapEndDeclaration.Converter,
+                    initialValue: RowRuleInsetCapEndDeclaration.InitialValue,
+                    flags: RowRuleInsetCapEndDeclaration.Flags,
+                    shorthands: RowRuleInsetCapEndDeclaration.Shorthands)
+            },
+            {
+                RowRuleInsetJunctionStartDeclaration.Name, new DeclarationInfo(
+                    name: RowRuleInsetJunctionStartDeclaration.Name,
+                    converter: RowRuleInsetJunctionStartDeclaration.Converter,
+                    initialValue: RowRuleInsetJunctionStartDeclaration.InitialValue,
+                    flags: RowRuleInsetJunctionStartDeclaration.Flags,
+                    shorthands: RowRuleInsetJunctionStartDeclaration.Shorthands)
+            },
+            {
+                RowRuleInsetJunctionEndDeclaration.Name, new DeclarationInfo(
+                    name: RowRuleInsetJunctionEndDeclaration.Name,
+                    converter: RowRuleInsetJunctionEndDeclaration.Converter,
+                    initialValue: RowRuleInsetJunctionEndDeclaration.InitialValue,
+                    flags: RowRuleInsetJunctionEndDeclaration.Flags,
+                    shorthands: RowRuleInsetJunctionEndDeclaration.Shorthands)
+            },
+            {
                 RuleOverlapDeclaration.Name, new DeclarationInfo(
                     name: RuleOverlapDeclaration.Name,
                     converter: RuleOverlapDeclaration.Converter,
@@ -1979,6 +2075,46 @@ namespace AngleSharp.Css
                     initialValue: RuleBreakDeclaration.InitialValue,
                     flags: RuleBreakDeclaration.Flags,
                     longhands: RuleBreakDeclaration.Longhands)
+            },
+            {
+                ColumnRuleInsetDeclaration.Name, new DeclarationInfo(
+                    name: ColumnRuleInsetDeclaration.Name,
+                    converter: ColumnRuleInsetDeclaration.Converter,
+                    initialValue: ColumnRuleInsetDeclaration.InitialValue,
+                    flags: ColumnRuleInsetDeclaration.Flags,
+                    longhands: ColumnRuleInsetDeclaration.Longhands)
+            },
+            {
+                RowRuleInsetDeclaration.Name, new DeclarationInfo(
+                    name: RowRuleInsetDeclaration.Name,
+                    converter: RowRuleInsetDeclaration.Converter,
+                    initialValue: RowRuleInsetDeclaration.InitialValue,
+                    flags: RowRuleInsetDeclaration.Flags,
+                    longhands: RowRuleInsetDeclaration.Longhands)
+            },
+            {
+                RuleInsetCapDeclaration.Name, new DeclarationInfo(
+                    name: RuleInsetCapDeclaration.Name,
+                    converter: RuleInsetCapDeclaration.Converter,
+                    initialValue: RuleInsetCapDeclaration.InitialValue,
+                    flags: RuleInsetCapDeclaration.Flags,
+                    longhands: RuleInsetCapDeclaration.Longhands)
+            },
+            {
+                RuleInsetJunctionDeclaration.Name, new DeclarationInfo(
+                    name: RuleInsetJunctionDeclaration.Name,
+                    converter: RuleInsetJunctionDeclaration.Converter,
+                    initialValue: RuleInsetJunctionDeclaration.InitialValue,
+                    flags: RuleInsetJunctionDeclaration.Flags,
+                    longhands: RuleInsetJunctionDeclaration.Longhands)
+            },
+            {
+                RuleInsetDeclaration.Name, new DeclarationInfo(
+                    name: RuleInsetDeclaration.Name,
+                    converter: RuleInsetDeclaration.Converter,
+                    initialValue: RuleInsetDeclaration.InitialValue,
+                    flags: RuleInsetDeclaration.Flags,
+                    longhands: RuleInsetDeclaration.Longhands)
             },
             {
                 PaddingDeclaration.Name, new DeclarationInfo(

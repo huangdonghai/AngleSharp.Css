@@ -100,6 +100,8 @@ namespace AngleSharp.Css
         public static readonly ICssValue ColumnRuleBreakDecl = new CssConstantValue<String>(CssKeywords.Normal, CssKeywords.Normal);
 
         public static readonly ICssValue RowRuleBreakDecl = new CssConstantValue<String>(CssKeywords.Normal, CssKeywords.Normal);
+
+        public static readonly ICssValue GapRuleInsetDecl = CssLengthValue.Zero;
         public static readonly ICssValue AnimationNameDecl = new CssConstantValue<Object>(CssKeywords.None, null);
         public static readonly ICssValue AnimationDurationDecl = CssTimeValue.Zero;
         public static readonly ICssValue AnimationTimingFunctionDecl = CssCubicBezierValue.Ease;

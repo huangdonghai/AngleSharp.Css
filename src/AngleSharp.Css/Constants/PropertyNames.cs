@@ -583,6 +583,91 @@ namespace AngleSharp.Css
         public static readonly String ColumnRule = "column-rule";
 
         /// <summary>
+        /// The column-rule-inset-start declaration.
+        /// </summary>
+        public static readonly String ColumnRuleInsetStart = "column-rule-inset-start";
+
+        /// <summary>
+        /// The column-rule-inset-end declaration.
+        /// </summary>
+        public static readonly String ColumnRuleInsetEnd = "column-rule-inset-end";
+
+        /// <summary>
+        /// The row-rule-inset-start declaration.
+        /// </summary>
+        public static readonly String RowRuleInsetStart = "row-rule-inset-start";
+
+        /// <summary>
+        /// The row-rule-inset-end declaration.
+        /// </summary>
+        public static readonly String RowRuleInsetEnd = "row-rule-inset-end";
+
+        /// <summary>
+        /// The column-rule-inset-cap-start declaration.
+        /// </summary>
+        public static readonly String ColumnRuleInsetCapStart = "column-rule-inset-cap-start";
+
+        /// <summary>
+        /// The column-rule-inset-cap-end declaration.
+        /// </summary>
+        public static readonly String ColumnRuleInsetCapEnd = "column-rule-inset-cap-end";
+
+        /// <summary>
+        /// The column-rule-inset-junction-start declaration.
+        /// </summary>
+        public static readonly String ColumnRuleInsetJunctionStart = "column-rule-inset-junction-start";
+
+        /// <summary>
+        /// The column-rule-inset-junction-end declaration.
+        /// </summary>
+        public static readonly String ColumnRuleInsetJunctionEnd = "column-rule-inset-junction-end";
+
+        /// <summary>
+        /// The row-rule-inset-cap-start declaration.
+        /// </summary>
+        public static readonly String RowRuleInsetCapStart = "row-rule-inset-cap-start";
+
+        /// <summary>
+        /// The row-rule-inset-cap-end declaration.
+        /// </summary>
+        public static readonly String RowRuleInsetCapEnd = "row-rule-inset-cap-end";
+
+        /// <summary>
+        /// The row-rule-inset-junction-start declaration.
+        /// </summary>
+        public static readonly String RowRuleInsetJunctionStart = "row-rule-inset-junction-start";
+
+        /// <summary>
+        /// The row-rule-inset-junction-end declaration.
+        /// </summary>
+        public static readonly String RowRuleInsetJunctionEnd = "row-rule-inset-junction-end";
+
+        /// <summary>
+        /// The column-rule-inset declaration.
+        /// </summary>
+        public static readonly String ColumnRuleInset = "column-rule-inset";
+
+        /// <summary>
+        /// The row-rule-inset declaration.
+        /// </summary>
+        public static readonly String RowRuleInset = "row-rule-inset";
+
+        /// <summary>
+        /// The rule-inset declaration.
+        /// </summary>
+        public static readonly String RuleInset = "rule-inset";
+
+        /// <summary>
+        /// The rule-inset-cap declaration.
+        /// </summary>
+        public static readonly String RuleInsetCap = "rule-inset-cap";
+
+        /// <summary>
+        /// The rule-inset-junction declaration.
+        /// </summary>
+        public static readonly String RuleInsetJunction = "rule-inset-junction";
+
+        /// <summary>
         /// The column-rule-break declaration.
         /// </summary>
         public static readonly String ColumnRuleBreak = "column-rule-break";
