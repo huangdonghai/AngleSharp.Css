@@ -1,6 +1,7 @@
 namespace AngleSharp.Css.Declarations
 {
     using AngleSharp.Css.Dom;
+    using AngleSharp.Css.Converters;
     using System;
     using static ValueConverters;
 
@@ -13,7 +14,7 @@ namespace AngleSharp.Css.Declarations
             PropertyNames.ColumnRule,
         };
 
-        public static IValueConverter Converter = ColorConverter;
+        public static IValueConverter Converter = ColorConverter.FromList();
 
         public static ICssValue InitialValue = InitialValues.ColumnRuleColorDecl;
 

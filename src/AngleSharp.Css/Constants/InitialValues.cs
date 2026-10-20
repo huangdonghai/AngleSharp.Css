@@ -88,6 +88,14 @@ namespace AngleSharp.Css
         public static readonly ICssValue ColumnRuleWidthDecl = new CssConstantValue<CssLengthValue>(CssKeywords.Medium, CssLengthValue.Medium);
         public static readonly ICssValue ColumnRuleStyleDecl = new CssConstantValue<LineStyle>(CssKeywords.None, LineStyle.None);
         public static readonly ICssValue ColumnRuleColorDecl = new CssConstantValue<CssColorValue>(CssKeywords.CurrentColor, CssColorValue.CurrentColor);
+
+        public static readonly ICssValue RowRuleWidthDecl = new CssConstantValue<CssLengthValue>(CssKeywords.Medium, CssLengthValue.Medium);
+
+        public static readonly ICssValue RowRuleStyleDecl = new CssConstantValue<LineStyle>(CssKeywords.None, LineStyle.None);
+
+        public static readonly ICssValue RowRuleColorDecl = new CssConstantValue<CssColorValue>(CssKeywords.CurrentColor, CssColorValue.CurrentColor);
+
+        public static readonly ICssValue RuleOverlapDecl = new CssConstantValue<String>(CssKeywords.RowOverColumn, CssKeywords.RowOverColumn);
         public static readonly ICssValue AnimationNameDecl = new CssConstantValue<Object>(CssKeywords.None, null);
         public static readonly ICssValue AnimationDurationDecl = CssTimeValue.Zero;
         public static readonly ICssValue AnimationTimingFunctionDecl = CssCubicBezierValue.Ease;

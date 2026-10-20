@@ -618,6 +618,31 @@ namespace AngleSharp.Css
         public static readonly String RowGap = "row-gap";
 
         /// <summary>
+        /// The row-rule declaration.
+        /// </summary>
+        public static readonly String RowRule = "row-rule";
+
+        /// <summary>
+        /// The row-rule-color declaration.
+        /// </summary>
+        public static readonly String RowRuleColor = "row-rule-color";
+
+        /// <summary>
+        /// The row-rule-style declaration.
+        /// </summary>
+        public static readonly String RowRuleStyle = "row-rule-style";
+
+        /// <summary>
+        /// The row-rule-width declaration.
+        /// </summary>
+        public static readonly String RowRuleWidth = "row-rule-width";
+
+        /// <summary>
+        /// The rule-overlap declaration.
+        /// </summary>
+        public static readonly String RuleOverlap = "rule-overlap";
+
+        /// <summary>
         /// The gap declaration.
         /// </summary>
         public static readonly String Gap = "gap";

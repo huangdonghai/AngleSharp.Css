@@ -398,6 +398,16 @@ namespace AngleSharp.Css
         public static readonly String RowReverse = "row-reverse";
 
         /// <summary>
+        /// The row-over-column keyword.
+        /// </summary>
+        public static readonly String RowOverColumn = "row-over-column";
+
+        /// <summary>
+        /// The column-over-row keyword.
+        /// </summary>
+        public static readonly String ColumnOverRow = "column-over-row";
+
+        /// <summary>
         /// The avoid-page keyword.
         /// </summary>
         public static readonly String AvoidPage = "avoid-page";

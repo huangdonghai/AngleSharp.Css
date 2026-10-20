@@ -98,7 +98,7 @@ namespace AngleSharp.Css.Tests.Rules
         {
             var rule = ParseRule("@layer utilities { .gap { gap: 8px; } }");
 
-            Assert.AreEqual("@layer utilities { .gap { gap: 8px } }", rule.ToCss());
+            Assert.AreEqual("@layer utilities { .gap { gap: 8px 8px } }", rule.ToCss());
         }
 
         [Test]

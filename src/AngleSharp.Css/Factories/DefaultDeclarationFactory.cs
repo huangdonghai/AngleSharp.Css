@@ -1235,6 +1235,37 @@ namespace AngleSharp.Css
                     shorthands: ColumnRuleColorDeclaration.Shorthands)
             },
             {
+                RowRuleWidthDeclaration.Name, new DeclarationInfo(
+                    name: RowRuleWidthDeclaration.Name,
+                    converter: RowRuleWidthDeclaration.Converter,
+                    initialValue: RowRuleWidthDeclaration.InitialValue,
+                    flags: RowRuleWidthDeclaration.Flags,
+                    shorthands: RowRuleWidthDeclaration.Shorthands)
+            },
+            {
+                RowRuleStyleDeclaration.Name, new DeclarationInfo(
+                    name: RowRuleStyleDeclaration.Name,
+                    converter: RowRuleStyleDeclaration.Converter,
+                    initialValue: RowRuleStyleDeclaration.InitialValue,
+                    flags: RowRuleStyleDeclaration.Flags,
+                    shorthands: RowRuleStyleDeclaration.Shorthands)
+            },
+            {
+                RowRuleColorDeclaration.Name, new DeclarationInfo(
+                    name: RowRuleColorDeclaration.Name,
+                    converter: RowRuleColorDeclaration.Converter,
+                    initialValue: RowRuleColorDeclaration.InitialValue,
+                    flags: RowRuleColorDeclaration.Flags,
+                    shorthands: RowRuleColorDeclaration.Shorthands)
+            },
+            {
+                RuleOverlapDeclaration.Name, new DeclarationInfo(
+                    name: RuleOverlapDeclaration.Name,
+                    converter: RuleOverlapDeclaration.Converter,
+                    initialValue: RuleOverlapDeclaration.InitialValue,
+                    flags: RuleOverlapDeclaration.Flags)
+            },
+            {
                 PaddingBlockEndDeclaration.Name, new DeclarationInfo(
                     name: PaddingBlockEndDeclaration.Name,
                     converter: PaddingBlockEndDeclaration.Converter,
@@ -1916,6 +1947,14 @@ namespace AngleSharp.Css
                     initialValue: ColumnRuleDeclaration.InitialValue,
                     flags: ColumnRuleDeclaration.Flags,
                     longhands: ColumnRuleDeclaration.Longhands)
+            },
+            {
+                RowRuleDeclaration.Name, new DeclarationInfo(
+                    name: RowRuleDeclaration.Name,
+                    converter: RowRuleDeclaration.Converter,
+                    initialValue: RowRuleDeclaration.InitialValue,
+                    flags: RowRuleDeclaration.Flags,
+                    longhands: RowRuleDeclaration.Longhands)
             },
             {
                 PaddingDeclaration.Name, new DeclarationInfo(
