@@ -418,6 +418,16 @@ namespace AngleSharp.Css
         public static readonly String OverlapJoin = "overlap-join";
 
         /// <summary>
+        /// The around keyword.
+        /// </summary>
+        public static readonly String Around = "around";
+
+        /// <summary>
+        /// The between keyword.
+        /// </summary>
+        public static readonly String Between = "between";
+
+        /// <summary>
         /// The avoid-page keyword.
         /// </summary>
         public static readonly String AvoidPage = "avoid-page";

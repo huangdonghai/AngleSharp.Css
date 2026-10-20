@@ -668,6 +668,21 @@ namespace AngleSharp.Css
         public static readonly String RuleInsetJunction = "rule-inset-junction";
 
         /// <summary>
+        /// The column-rule-visibility-items declaration.
+        /// </summary>
+        public static readonly String ColumnRuleVisibilityItems = "column-rule-visibility-items";
+
+        /// <summary>
+        /// The row-rule-visibility-items declaration.
+        /// </summary>
+        public static readonly String RowRuleVisibilityItems = "row-rule-visibility-items";
+
+        /// <summary>
+        /// The rule-visibility-items declaration.
+        /// </summary>
+        public static readonly String RuleVisibilityItems = "rule-visibility-items";
+
+        /// <summary>
         /// The column-rule-break declaration.
         /// </summary>
         public static readonly String ColumnRuleBreak = "column-rule-break";

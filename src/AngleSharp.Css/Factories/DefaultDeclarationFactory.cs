@@ -2077,6 +2077,30 @@ namespace AngleSharp.Css
                     longhands: RuleBreakDeclaration.Longhands)
             },
             {
+                ColumnRuleVisibilityItemsDeclaration.Name, new DeclarationInfo(
+                    name: ColumnRuleVisibilityItemsDeclaration.Name,
+                    converter: ColumnRuleVisibilityItemsDeclaration.Converter,
+                    initialValue: ColumnRuleVisibilityItemsDeclaration.InitialValue,
+                    flags: ColumnRuleVisibilityItemsDeclaration.Flags,
+                    shorthands: ColumnRuleVisibilityItemsDeclaration.Shorthands)
+            },
+            {
+                RowRuleVisibilityItemsDeclaration.Name, new DeclarationInfo(
+                    name: RowRuleVisibilityItemsDeclaration.Name,
+                    converter: RowRuleVisibilityItemsDeclaration.Converter,
+                    initialValue: RowRuleVisibilityItemsDeclaration.InitialValue,
+                    flags: RowRuleVisibilityItemsDeclaration.Flags,
+                    shorthands: RowRuleVisibilityItemsDeclaration.Shorthands)
+            },
+            {
+                RuleVisibilityItemsDeclaration.Name, new DeclarationInfo(
+                    name: RuleVisibilityItemsDeclaration.Name,
+                    converter: RuleVisibilityItemsDeclaration.Converter,
+                    initialValue: RuleVisibilityItemsDeclaration.InitialValue,
+                    flags: RuleVisibilityItemsDeclaration.Flags,
+                    longhands: RuleVisibilityItemsDeclaration.Longhands)
+            },
+            {
                 ColumnRuleInsetDeclaration.Name, new DeclarationInfo(
                     name: ColumnRuleInsetDeclaration.Name,
                     converter: ColumnRuleInsetDeclaration.Converter,

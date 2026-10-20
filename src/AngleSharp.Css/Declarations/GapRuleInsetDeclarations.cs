@@ -343,4 +343,60 @@ namespace AngleSharp.Css.Declarations
 
         public static PropertyFlags Flags = PropertyFlags.Shorthand;
     }
+
+    /// <summary>
+    /// The value a visibility-items property takes: which gaps get a decoration, by whether the areas
+    /// beside them hold anything (css-gaps-1 3.4).
+    /// </summary>
+    static class VisibilityConverters
+    {
+        public static readonly IValueConverter Value = Or(
+            Assign(CssKeywords.All, CssKeywords.All),
+            Assign(CssKeywords.Around, CssKeywords.Around),
+            Assign(CssKeywords.Between, CssKeywords.Between),
+            Assign(CssKeywords.Normal, CssKeywords.Normal));
+    }
+
+    static class ColumnRuleVisibilityItemsDeclaration
+    {
+        public static String Name = PropertyNames.ColumnRuleVisibilityItems;
+
+        public static String[] Shorthands = new[] { PropertyNames.RuleVisibilityItems };
+
+        public static IValueConverter Converter = VisibilityConverters.Value;
+
+        public static ICssValue InitialValue = InitialValues.GapRuleVisibilityDecl;
+
+        public static PropertyFlags Flags = PropertyFlags.None;
+    }
+
+    static class RowRuleVisibilityItemsDeclaration
+    {
+        public static String Name = PropertyNames.RowRuleVisibilityItems;
+
+        public static String[] Shorthands = new[] { PropertyNames.RuleVisibilityItems };
+
+        public static IValueConverter Converter = VisibilityConverters.Value;
+
+        public static ICssValue InitialValue = InitialValues.GapRuleVisibilityDecl;
+
+        public static PropertyFlags Flags = PropertyFlags.None;
+    }
+
+    static class RuleVisibilityItemsDeclaration
+    {
+        public static String Name = PropertyNames.RuleVisibilityItems;
+
+        public static String[] Longhands = new[]
+        {
+            PropertyNames.ColumnRuleVisibilityItems,
+            PropertyNames.RowRuleVisibilityItems,
+        };
+
+        public static IValueConverter Converter = new SameValueAggregator(2, VisibilityConverters.Value);
+
+        public static ICssValue InitialValue = null;
+
+        public static PropertyFlags Flags = PropertyFlags.Shorthand;
+    }
 }
