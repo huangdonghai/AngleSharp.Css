@@ -2061,6 +2061,20 @@ namespace AngleSharp.Css
                     longhands: ColumnRuleDeclaration.Longhands)
             },
             {
+                ColumnHeightDeclaration.Name, new DeclarationInfo(
+                    name: ColumnHeightDeclaration.Name,
+                    converter: ColumnHeightDeclaration.Converter,
+                    initialValue: ColumnHeightDeclaration.InitialValue,
+                    flags: ColumnHeightDeclaration.Flags)
+            },
+            {
+                ColumnWrapDeclaration.Name, new DeclarationInfo(
+                    name: ColumnWrapDeclaration.Name,
+                    converter: ColumnWrapDeclaration.Converter,
+                    initialValue: ColumnWrapDeclaration.InitialValue,
+                    flags: ColumnWrapDeclaration.Flags)
+            },
+            {
                 RowRuleDeclaration.Name, new DeclarationInfo(
                     name: RowRuleDeclaration.Name,
                     converter: RowRuleDeclaration.Converter,

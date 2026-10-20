@@ -578,6 +578,16 @@ namespace AngleSharp.Css
         public static readonly String ColumnFill = "column-fill";
 
         /// <summary>
+        /// The column-height declaration.
+        /// </summary>
+        public static readonly String ColumnHeight = "column-height";
+
+        /// <summary>
+        /// The column-wrap declaration.
+        /// </summary>
+        public static readonly String ColumnWrap = "column-wrap";
+
+        /// <summary>
         /// The column-rule declaration.
         /// </summary>
         public static readonly String ColumnRule = "column-rule";
