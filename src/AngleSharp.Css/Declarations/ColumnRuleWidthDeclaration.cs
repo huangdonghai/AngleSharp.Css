@@ -16,7 +16,7 @@ namespace AngleSharp.Css.Declarations
 
         // CSS Gap Decorations takes a comma-separated list, one decoration per gap (css-gaps-1 §4.3,
         // which supersedes the single value CSS Multicol 1 gave this property).
-        public static IValueConverter Converter = LineWidthConverter.FromList();
+        public static IValueConverter Converter = GapRuleList(LineWidthConverter);
 
         public static ICssValue InitialValue = InitialValues.ColumnRuleWidthDecl;
 

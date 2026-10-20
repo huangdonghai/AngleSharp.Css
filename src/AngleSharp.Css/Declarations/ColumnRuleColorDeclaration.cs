@@ -14,7 +14,7 @@ namespace AngleSharp.Css.Declarations
             PropertyNames.ColumnRule,
         };
 
-        public static IValueConverter Converter = ColorConverter.FromList();
+        public static IValueConverter Converter = GapRuleList(ColorConverter);
 
         public static ICssValue InitialValue = InitialValues.ColumnRuleColorDecl;
 

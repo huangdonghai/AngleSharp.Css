@@ -15,7 +15,7 @@ namespace AngleSharp.Css.Declarations
         };
 
         // css-gaps-1 §4.2: one decoration per row gap, so the value is a list.
-        public static IValueConverter Converter = LineStyleConverter.FromList();
+        public static IValueConverter Converter = GapRuleList(LineStyleConverter);
 
         public static ICssValue InitialValue = InitialValues.RowRuleStyleDecl;
 

@@ -92,6 +92,25 @@ namespace AngleSharp.Css
         public static readonly IValueConverter LineWidthConverter = FromParser(UnitParser.ParseLineWidth);
 
         /// <summary>
+        /// Represents the list a gap decoration property takes: comma-separated values, each of which may
+        /// be a <c>repeat()</c> notation holding more of them (CSS Gaps 1 §4.5). The count inside the
+        /// notation is kept as written, because how many gaps there are is only known once the container
+        /// holding them has been laid out.
+        /// </summary>
+        public static IValueConverter GapRuleList(IValueConverter item) =>
+            Or(RepeatOf(item), item).FromList();
+
+        /// <summary>
+        /// Represents one <c>repeat()</c> notation of a gap decoration property.
+        /// </summary>
+        /// <remarks>
+        /// The notation may not nest, so the values it holds are the property's own values in a plain
+        /// comma-separated list rather than the whole grammar this method belongs to.
+        /// </remarks>
+        public static IValueConverter RepeatOf(IValueConverter item) =>
+            new RepeatValueConverter(Or(NaturalIntegerConverter, Assign(CssKeywords.Auto, CssKeywords.Auto)), item);
+
+        /// <summary>
         /// Represents a calculated number.
         /// https://developer.mozilla.org/en-US/docs/Web/CSS/calc
         /// </summary>
