@@ -583,6 +583,11 @@ namespace AngleSharp.Css
         public static readonly String ColumnRule = "column-rule";
 
         /// <summary>
+        /// The column-rule-break declaration.
+        /// </summary>
+        public static readonly String ColumnRuleBreak = "column-rule-break";
+
+        /// <summary>
         /// The column-rule-color declaration.
         /// </summary>
         public static readonly String ColumnRuleColor = "column-rule-color";
@@ -623,6 +628,11 @@ namespace AngleSharp.Css
         public static readonly String RowRule = "row-rule";
 
         /// <summary>
+        /// The row-rule-break declaration.
+        /// </summary>
+        public static readonly String RowRuleBreak = "row-rule-break";
+
+        /// <summary>
         /// The row-rule-color declaration.
         /// </summary>
         public static readonly String RowRuleColor = "row-rule-color";
@@ -636,6 +646,11 @@ namespace AngleSharp.Css
         /// The row-rule-width declaration.
         /// </summary>
         public static readonly String RowRuleWidth = "row-rule-width";
+
+        /// <summary>
+        /// The rule-break declaration.
+        /// </summary>
+        public static readonly String RuleBreak = "rule-break";
 
         /// <summary>
         /// The rule-overlap declaration.

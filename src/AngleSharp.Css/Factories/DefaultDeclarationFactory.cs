@@ -1259,6 +1259,22 @@ namespace AngleSharp.Css
                     shorthands: RowRuleColorDeclaration.Shorthands)
             },
             {
+                ColumnRuleBreakDeclaration.Name, new DeclarationInfo(
+                    name: ColumnRuleBreakDeclaration.Name,
+                    converter: ColumnRuleBreakDeclaration.Converter,
+                    initialValue: ColumnRuleBreakDeclaration.InitialValue,
+                    flags: ColumnRuleBreakDeclaration.Flags,
+                    shorthands: ColumnRuleBreakDeclaration.Shorthands)
+            },
+            {
+                RowRuleBreakDeclaration.Name, new DeclarationInfo(
+                    name: RowRuleBreakDeclaration.Name,
+                    converter: RowRuleBreakDeclaration.Converter,
+                    initialValue: RowRuleBreakDeclaration.InitialValue,
+                    flags: RowRuleBreakDeclaration.Flags,
+                    shorthands: RowRuleBreakDeclaration.Shorthands)
+            },
+            {
                 RuleOverlapDeclaration.Name, new DeclarationInfo(
                     name: RuleOverlapDeclaration.Name,
                     converter: RuleOverlapDeclaration.Converter,
@@ -1955,6 +1971,14 @@ namespace AngleSharp.Css
                     initialValue: RowRuleDeclaration.InitialValue,
                     flags: RowRuleDeclaration.Flags,
                     longhands: RowRuleDeclaration.Longhands)
+            },
+            {
+                RuleBreakDeclaration.Name, new DeclarationInfo(
+                    name: RuleBreakDeclaration.Name,
+                    converter: RuleBreakDeclaration.Converter,
+                    initialValue: RuleBreakDeclaration.InitialValue,
+                    flags: RuleBreakDeclaration.Flags,
+                    longhands: RuleBreakDeclaration.Longhands)
             },
             {
                 PaddingDeclaration.Name, new DeclarationInfo(

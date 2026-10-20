@@ -408,6 +408,11 @@ namespace AngleSharp.Css
         public static readonly String ColumnOverRow = "column-over-row";
 
         /// <summary>
+        /// The intersection keyword.
+        /// </summary>
+        public static readonly String Intersection = "intersection";
+
+        /// <summary>
         /// The avoid-page keyword.
         /// </summary>
         public static readonly String AvoidPage = "avoid-page";
