@@ -253,6 +253,11 @@ namespace AngleSharp.Css
         public static readonly String Perspective = "perspective";
 
         /// <summary>
+        /// The color() function, which names a color in one of the predefined spaces.
+        /// </summary>
+        public static readonly String Color = "color";
+
+        /// <summary>
         /// The gray function.
         /// </summary>
         public static readonly String Gray = "gray";

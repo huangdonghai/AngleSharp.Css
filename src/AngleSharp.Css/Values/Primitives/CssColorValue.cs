@@ -460,6 +460,159 @@ namespace AngleSharp.Css.Values
             return FromRgba(red, green, blue, alpha);
         }
 
+        /// <summary>
+        /// Returns the color a color() function spells in one of the predefined spaces of
+        /// CSS Color 4 12.3: the components leave the space's own transfer function, are carried to
+        /// CIE XYZ by the matrix the specification derives from that space's primaries and white point,
+        /// adapted to the D50 that the Lab path already speaks, and encoded to sRGB at the end of it.
+        /// </summary>
+        /// <param name="space">The space name, as the page wrote it.</param>
+        /// <param name="r">The first component, in the space's own encoding [0,1].</param>
+        /// <param name="g">The second component [0,1].</param>
+        /// <param name="b">The third component [0,1].</param>
+        /// <param name="alpha">The alpha value [0,1].</param>
+        /// <returns>The color, or null where the name is no space the table below carries.</returns>
+        public static CssColorValue? FromColor(String space, Double r, Double g, Double b, Double alpha)
+        {
+            switch (space.ToLowerInvariant())
+            {
+                case "srgb":
+                    // The components are sRGB already: encoded, and in the order they are drawn in.
+                    return FromRgba(r, g, b, alpha);
+                case "srgb-linear":
+                    return FromRgba(Project(r), Project(g), Project(b), alpha);
+                case "display-p3":
+                    return ToSrgb(new[] { Unproject(r), Unproject(g), Unproject(b) }, DisplayP3ToXyz, XyzWhite.D65, alpha);
+                case "display-p3-linear":
+                    return ToSrgb(new[] { r, g, b }, DisplayP3ToXyz, XyzWhite.D65, alpha);
+                case "a98-rgb":
+                    return ToSrgb(new[] { Raised(r, 563.0 / 256.0), Raised(g, 563.0 / 256.0), Raised(b, 563.0 / 256.0) }, A98ToXyz, XyzWhite.D65, alpha);
+                case "a98-rgb-linear":
+                    return ToSrgb(new[] { r, g, b }, A98ToXyz, XyzWhite.D65, alpha);
+                case "rec2020":
+                    return ToSrgb(new[] { Raised(r, 2.4), Raised(g, 2.4), Raised(b, 2.4) }, Rec2020ToXyz, XyzWhite.D65, alpha);
+                case "rec2020-linear":
+                    return ToSrgb(new[] { r, g, b }, Rec2020ToXyz, XyzWhite.D65, alpha);
+                // ProPhoto is written on the D50 that Lab uses, so its matrix needs no adapting.
+                case "prophoto-rgb":
+                    return ToSrgb(new[] { Unprophoto(r), Unprophoto(g), Unprophoto(b) }, ProPhotoToXyz, XyzWhite.D50, alpha);
+                case "prophoto-rgb-linear":
+                    return ToSrgb(new[] { r, g, b }, ProPhotoToXyz, XyzWhite.D50, alpha);
+                case "xyz":
+                case "xyz-d65":
+                    return ToSrgb(new[] { r, g, b }, Identity, XyzWhite.D65, alpha);
+                case "xyz-d50":
+                    return ToSrgb(new[] { r, g, b }, Identity, XyzWhite.D50, alpha);
+            }
+
+            return null;
+        }
+
+        private enum XyzWhite
+        {
+            D50,
+            D65,
+        }
+
+        // The matrices are CSS Color 4 12.3 and 19's own, evaluated from the rational form it prints
+        // them in; the Bradford adaptation is the one the same sample code carries. ProPhoto is the space
+        // whose matrix is already expressed on D50, which is why it needs no adapting.
+        private static readonly Double[,] Identity = new[,]
+        {
+            { 1.0, 0.0, 0.0 },
+            { 0.0, 1.0, 0.0 },
+            { 0.0, 0.0, 1.0 },
+        };
+
+        private static readonly Double[,] DisplayP3ToXyz = new[,]
+        {
+            { 0.48657094864821626, 0.26566769316909294, 0.1982172852343625 },
+            { 0.22897456406974884, 0.6917385218365062, 0.079286914093745 },
+            { 0.0, 0.045113381858902575, 1.0439443689009757 },
+        };
+
+        private static readonly Double[,] A98ToXyz = new[,]
+        {
+            { 0.5766690429101308, 0.18555823790654627, 0.18822864623499472 },
+            { 0.29734497525053616, 0.627363566255466, 0.07529145849399789 },
+            { 0.027031361386412378, 0.07068885253582714, 0.9913375368376389 },
+        };
+
+        private static readonly Double[,] Rec2020ToXyz = new[,]
+        {
+            { 0.6369580483012913, 0.14461690358620838, 0.16888097516417205 },
+            { 0.26270021201126703, 0.677998071518871, 0.059301716469861945 },
+            { 0.0, 0.028072693049087508, 1.0609850577107909 },
+        };
+
+        private static readonly Double[,] ProPhotoToXyz = new[,]
+        {
+            { 0.79776664490064230, 0.13518129740053308, 0.03134773412839220 },
+            { 0.28807482881940130, 0.71183523424187300, 0.00008993693872564 },
+            { 0.00000000000000000, 0.00000000000000000, 0.82510460251046020 },
+        };
+
+        private static readonly Double[,] D65ToD50 = new[,]
+        {
+            { 1.0479297925449969, 0.022946870601609652, -0.05019226628920524 },
+            { 0.02962780877005599, 0.9904344267538799, -0.017073799063418826 },
+            { -0.009243040646204504, 0.015055191490298152, 0.7518742814281371 },
+        };
+
+        private static CssColorValue? ToSrgb(Double[] components, Double[,] toXyz, XyzWhite white, Double alpha)
+        {
+            var xyz = Transform(toXyz, components);
+
+            if (white == XyzWhite.D65)
+            {
+                xyz = Transform(D65ToD50, xyz);
+            }
+
+            return FromXyz50(xyz[0], xyz[1], xyz[2], alpha);
+        }
+
+        private static Double[] Transform(Double[,] matrix, Double[] vector) => new[]
+        {
+            matrix[0, 0] * vector[0] + matrix[0, 1] * vector[1] + matrix[0, 2] * vector[2],
+            matrix[1, 0] * vector[0] + matrix[1, 1] * vector[1] + matrix[1, 2] * vector[2],
+            matrix[2, 0] * vector[0] + matrix[2, 1] * vector[1] + matrix[2, 2] * vector[2],
+        };
+
+        // The sRGB curve run backwards, for the spaces that share it: display-p3 is that transfer
+        // function on different primaries, and nothing else.
+        private static Double Unproject(Double c)
+        {
+            var abs = Math.Abs(c);
+
+            if (abs <= 0.04045)
+            {
+                return c / 12.92;
+            }
+
+            var sgn = c < 0.0 ? -1.0 : 1.0;
+            return sgn * Math.Pow((abs + 0.055) / 1.055, 2.4);
+        }
+
+        private static Double Raised(Double c, Double exponent)
+        {
+            var sgn = c < 0.0 ? -1.0 : 1.0;
+            return sgn * Math.Pow(Math.Abs(c), exponent);
+        }
+
+        // ProPhoto's curve is a gamma of 1.8 with a straight piece below 16/512, and CSS Color 4's own
+        // reading of it raises the written value - the curve is applied on the way out, not on the way in.
+        private static Double Unprophoto(Double c)
+        {
+            var abs = Math.Abs(c);
+
+            if (abs <= 16.0 / 512.0)
+            {
+                return c / 16.0;
+            }
+
+            return Raised(c, 1.8);
+        }
+
         #endregion
 
         #region Properties

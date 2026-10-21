@@ -19,6 +19,7 @@ namespace AngleSharp.Css.Parser
             { FunctionNames.Hsl, ParseHsla },
             { FunctionNames.Hsla, ParseHsla },
             { FunctionNames.Gray, ParseGray },
+            { FunctionNames.Color, ParseColorSpace },
             { FunctionNames.Hwb, ParseHwba },
             { FunctionNames.Hwba, ParseHwba },
             { FunctionNames.Lab, ParseLab },
@@ -475,6 +476,72 @@ namespace AngleSharp.Css.Parser
             }
 
             return null;
+        }
+
+        // color() names its space first and then the three components of that space, each a number or a
+        // percentage of it - where 100% is the full one - or none, with an alpha behind a solidus.
+        private static CssColorValue? ParseColorSpace(StringSource source)
+        {
+            var space = source.ParseIdent();
+
+            if (space == null)
+            {
+                return null;
+            }
+
+            source.SkipSpacesAndComments();
+
+            var x = ParseColorComponent(source);
+            source.SkipSpacesAndComments();
+            var y = ParseColorComponent(source);
+            source.SkipSpacesAndComments();
+            var z = ParseColorComponent(source);
+            source.SkipSpacesAndComments();
+
+            var c = source.Current;
+            var alpha = new Nullable<Double>(1.0);
+
+            if (x != null && y != null && z != null)
+            {
+                source.SkipCurrentAndSpaces();
+
+                if (c == Symbols.Solidus)
+                {
+                    alpha = ParseAlpha(source);
+                    source.SkipSpacesAndComments();
+                    c = source.Current;
+                    source.SkipCurrentAndSpaces();
+                }
+
+                if (c == Symbols.RoundBracketClose && alpha.HasValue)
+                {
+                    return CssColorValue.FromColor(space, x.Value, y.Value, z.Value, alpha.Value);
+                }
+            }
+
+            return null;
+        }
+
+        private static Double? ParseColorComponent(StringSource source)
+        {
+            var pos = source.Index;
+            var unit = source.ParseUnit();
+
+            if (unit != null && Double.TryParse(unit.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var value))
+            {
+                if (unit.Dimension == String.Empty)
+                {
+                    return value;
+                }
+                else if (unit.Dimension == "%")
+                {
+                    return value * 0.01;
+                }
+            }
+
+            source.BackTo(pos);
+
+            return source.IsIdentifier(CssKeywords.None) ? 0 : default(Double?);
         }
 
         private static Double? ParseLabComponent(StringSource source, Double numberScale = 1.0)
