@@ -133,7 +133,7 @@ namespace AngleSharp.Css.Parser
                     source.SkipCurrentAndSpaces();
                 }
 
-                if (c == Symbols.RoundBracketClose)
+                if (c == Symbols.RoundBracketClose && a.HasValue)
                 {
                     return CssColorValue.FromRgba(r.Value, g.Value, b.Value, a.Value);
                 }
@@ -174,6 +174,52 @@ namespace AngleSharp.Css.Parser
         }
 
         private static CssColorValue? ParseHsla(StringSource source)
+        {
+            var pos = source.Index;
+            var color = ParseHslaLegacy(source);
+
+            if (!color.HasValue)
+            {
+                source.BackTo(pos);
+                return ParseHslaModern(source);
+            }
+
+            return color.Value;
+        }
+
+        private static CssColorValue? ParseHslaModern(StringSource source)
+        {
+            var h = ParseHueOrNone(source);
+            source.SkipSpacesAndComments();
+            var s = ParsePercentOrNone(source);
+            source.SkipSpacesAndComments();
+            var l = ParsePercentOrNone(source);
+            source.SkipSpacesAndComments();
+            var c = source.Current;
+            var a = new Nullable<Double>(1.0);
+
+            if (h != null && s != null && l != null)
+            {
+                source.SkipCurrentAndSpaces();
+
+                if (c == Symbols.Solidus)
+                {
+                    a = ParseAlpha(source);
+                    source.SkipSpacesAndComments();
+                    c = source.Current;
+                    source.SkipCurrentAndSpaces();
+                }
+
+                if (c == Symbols.RoundBracketClose && a.HasValue)
+                {
+                    return CssColorValue.FromHsla(h.Value, s.Value, l.Value, a.Value);
+                }
+            }
+
+            return null;
+        }
+
+        private static CssColorValue? ParseHslaLegacy(StringSource source)
         {
             var h = ParseAngle(source);
             var c1 = source.SkipGetSkip();
@@ -248,7 +294,7 @@ namespace AngleSharp.Css.Parser
                     source.SkipCurrentAndSpaces();
                 }
 
-                if (c == Symbols.RoundBracketClose)
+                if (c == Symbols.RoundBracketClose && alpha.HasValue)
                 {
                     return CssColorValue.FromLab(l.Value, a.Value, b.Value, alpha.Value);
                 }
@@ -280,7 +326,7 @@ namespace AngleSharp.Css.Parser
                     source.SkipCurrentAndSpaces();
                 }
 
-                if (chr == Symbols.RoundBracketClose)
+                if (chr == Symbols.RoundBracketClose && a.HasValue)
                 {
                     return CssColorValue.FromLch(l.Value, c.Value, h.Value, a.Value);
                 }
@@ -313,7 +359,7 @@ namespace AngleSharp.Css.Parser
                     source.SkipCurrentAndSpaces();
                 }
 
-                if (c == Symbols.RoundBracketClose)
+                if (c == Symbols.RoundBracketClose && alpha.HasValue)
                 {
                     return CssColorValue.FromOklab(l.Value, a.Value, b.Value, alpha.Value);
                 }
@@ -345,7 +391,7 @@ namespace AngleSharp.Css.Parser
                     source.SkipCurrentAndSpaces();
                 }
 
-                if (chr == Symbols.RoundBracketClose)
+                if (chr == Symbols.RoundBracketClose && a.HasValue)
                 {
                     return CssColorValue.FromOklch(l.Value, c.Value, h.Value, a.Value);
                 }
@@ -355,6 +401,52 @@ namespace AngleSharp.Css.Parser
         }
 
         private static CssColorValue? ParseHwba(StringSource source)
+        {
+            var pos = source.Index;
+            var color = ParseHwbaLegacy(source);
+
+            if (!color.HasValue)
+            {
+                source.BackTo(pos);
+                return ParseHwbaModern(source);
+            }
+
+            return color.Value;
+        }
+
+        private static CssColorValue? ParseHwbaModern(StringSource source)
+        {
+            var h = ParseHueOrNone(source);
+            source.SkipSpacesAndComments();
+            var w = ParsePercentOrNone(source);
+            source.SkipSpacesAndComments();
+            var b = ParsePercentOrNone(source);
+            source.SkipSpacesAndComments();
+            var c = source.Current;
+            var a = new Nullable<Double>(1.0);
+
+            if (h != null && w != null && b != null)
+            {
+                source.SkipCurrentAndSpaces();
+
+                if (c == Symbols.Solidus)
+                {
+                    a = ParseAlpha(source);
+                    source.SkipSpacesAndComments();
+                    c = source.Current;
+                    source.SkipCurrentAndSpaces();
+                }
+
+                if (c == Symbols.RoundBracketClose && a.HasValue)
+                {
+                    return CssColorValue.FromHwba(h.Value, w.Value, b.Value, a.Value);
+                }
+            }
+
+            return null;
+        }
+
+        private static CssColorValue? ParseHwbaLegacy(StringSource source)
         {
             var h = ParseAngle(source);
             var c1 = source.SkipGetSkip();
@@ -439,21 +531,58 @@ namespace AngleSharp.Css.Parser
                 return null;
             }
 
-            if (unit.Dimension == String.Empty && Int32.TryParse(unit.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var num))
+            if (unit.Dimension == String.Empty && Double.TryParse(unit.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var num))
             {
-                return (Byte)Math.Max(Math.Min(num, 255f), 0f);
+                return ToChannel(num);
             }
 
             if (unit.Dimension == "%" && Double.TryParse(unit.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var val))
             {
-                return (Byte)Math.Round((255.0 * val) / 100.0);
+                return ToChannel((255.0 * val) / 100.0);
             }
 
             return null;
         }
 
+        // A channel is a whole number, and CSS Values 3 4.3 says which whole: the nearest one, a value
+        // standing exactly between two going up. Both the number and the percentage reach this, so
+        // rgb(0 128.5 0) and rgb(0 70% 0) answer 129 and 179 as Chromium does.
+        private static Byte ToChannel(Double value) =>
+            (Byte)Math.Round(Math.Max(Math.Min(value, 255.0), 0.0), MidpointRounding.AwayFromZero);
+
+        private static Double? ParseHueOrNone(StringSource source)
+        {
+            var pos = source.Index;
+            var value = ParseAngle(source);
+
+            if (value.HasValue)
+            {
+                return value;
+            }
+
+            source.BackTo(pos);
+
+            return source.IsIdentifier(CssKeywords.None) ? 0 : default(Double?);
+        }
+
+        private static Double? ParsePercentOrNone(StringSource source)
+        {
+            var pos = source.Index;
+            var value = source.ParsePercent();
+
+            if (value.HasValue)
+            {
+                return value;
+            }
+
+            source.BackTo(pos);
+
+            return source.IsIdentifier(CssKeywords.None) ? 0 : default(Double?);
+        }
+
         private static Double? ParseAlpha(StringSource source)
         {
+            var pos = source.Index;
             var unit = source.ParseUnit();
 
             if (unit != null &&
@@ -469,7 +598,10 @@ namespace AngleSharp.Css.Parser
                 }
             }
 
-            return null;
+            source.BackTo(pos);
+
+            // `none` is an alpha of nothing at all, which is the one reading the modern syntax gives it.
+            return source.IsIdentifier(CssKeywords.None) ? 0 : default(Double?);
         }
 
         private static Double? ParseAngle(StringSource source)
