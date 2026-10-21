@@ -15,6 +15,10 @@ namespace AngleSharp.Css
     /// <see cref="AngleSharp.Html.Dom.IHtmlElement.DoFocus"/> /
     /// <see cref="AngleSharp.Html.Dom.IHtmlElement.DoBlur"/>), so that remains the single source
     /// of truth instead of introducing a second, potentially conflicting one.
+    /// <para>
+    /// The <c>link</c> pseudo-class is decorated rather than forced: a caller that marks a link
+    /// visited has to be answered by <c>:link</c> as well, since the two states exclude one another.
+    /// </para>
     /// </remarks>
     sealed class ForcingPseudoClassSelectorFactory : IPseudoClassSelectorFactory
     {
@@ -32,6 +36,11 @@ namespace AngleSharp.Css
             if (selector is null || name.Equals(PseudoClassNames.Focus, StringComparison.OrdinalIgnoreCase))
             {
                 return selector;
+            }
+
+            if (name.Equals(PseudoClassNames.Link, StringComparison.OrdinalIgnoreCase))
+            {
+                return new UnvisitedLinkSelector(selector);
             }
 
             return new ForcingPseudoClassSelector(name, selector);
