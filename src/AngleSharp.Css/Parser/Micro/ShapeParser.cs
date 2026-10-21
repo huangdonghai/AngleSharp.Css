@@ -21,19 +21,19 @@ namespace AngleSharp.Css.Parser
             {
                 if (source.IsFunction(FunctionNames.Rect))
                 {
-                    var top = source.ParseLength();
+                    var top = source.ParseLengthOrAuto();
                     var isc = SkipIfComma(source);
-                    var right = source.ParseLength();
+                    var right = source.ParseLengthOrAuto();
 
                     if (SkipIfComma(source) != isc)
                         break;
 
-                    var bottom = source.ParseLength();
+                    var bottom = source.ParseLengthOrAuto();
 
                     if (SkipIfComma(source) != isc)
                         break;
 
-                    var left = source.ParseLength();
+                    var left = source.ParseLengthOrAuto();
                     var f = source.SkipSpacesAndComments();
 
                     if (top.HasValue && right.HasValue && bottom.HasValue && left.HasValue && f == Symbols.RoundBracketClose)
@@ -47,6 +47,23 @@ namespace AngleSharp.Css.Parser
 
             source.BackTo(pos);
             return null;
+        }
+
+        /// <summary>
+        /// Parses one side of a rectangle, which is a length or the <c>auto</c> keyword. The keyword
+        /// stands for the corresponding edge of the box - the top or left edge for <c>top</c> and
+        /// <c>left</c>, the far edge for the other two - so it has to survive the parse: a shape that
+        /// says <c>auto</c> is a clip, and no shape at all is not.
+        /// </summary>
+        private static CssLengthValue? ParseLengthOrAuto(this StringSource source)
+        {
+            if (source.IsIdentifier(CssKeywords.Auto))
+            {
+                source.SkipSpacesAndComments();
+                return CssLengthValue.Auto;
+            }
+
+            return source.ParseLength();
         }
 
         private static Boolean SkipIfComma(StringSource source)

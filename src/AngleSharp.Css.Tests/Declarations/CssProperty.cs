@@ -553,6 +553,27 @@ namespace AngleSharp.Css.Tests.Declarations
         }
 
         [Test]
+        public void CssClipShapeAutoLegal()
+        {
+            // `auto` stands for the edge of the box on that side, so a shape that states it is a clip -
+            // a declaration the parser threw away would have left the box unclipped instead.
+            var snippet = "clip: rect(auto, auto, auto, auto)";
+            var property = ParseDeclaration(snippet);
+            Assert.AreEqual("clip", property.Name);
+            Assert.IsTrue(property.HasValue);
+            Assert.AreEqual("rect(auto, auto, auto, auto)", property.Value);
+        }
+
+        [Test]
+        public void CssClipShapeAutoMixedWithLengthsLegal()
+        {
+            var snippet = "clip: rect(auto 180px 190px auto)";
+            var property = ParseDeclaration(snippet);
+            Assert.IsTrue(property.HasValue);
+            Assert.AreEqual("rect(auto, 180px, 190px, auto)", property.Value);
+        }
+
+        [Test]
         public void CssClipShapeNonZerosIllegal()
         {
             var snippet = "clip: rect(2px, 1cm, 5mm)";
