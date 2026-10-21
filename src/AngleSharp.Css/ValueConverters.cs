@@ -703,6 +703,7 @@ namespace AngleSharp.Css
         public static readonly IValueConverter ContainIntrinsicSizeConverter = Or(
             Assign(CssKeywords.None, CssKeywords.None),
             Assign(CssKeywords.Auto, CssKeywords.Auto),
+            WithOrder(LengthConverter, LengthConverter),
             LengthConverter);
 
         /// <summary>
