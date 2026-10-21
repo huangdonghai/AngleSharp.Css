@@ -192,9 +192,9 @@ namespace AngleSharp.Css.Parser
         {
             var h = ParseHueOrNone(source);
             source.SkipSpacesAndComments();
-            var s = ParsePercentOrNone(source);
+            var s = Within(ParsePercentOrNone(source), 0.0, 1.0);
             source.SkipSpacesAndComments();
-            var l = ParsePercentOrNone(source);
+            var l = Within(ParsePercentOrNone(source), 0.0, 1.0);
             source.SkipSpacesAndComments();
             var c = source.Current;
             var a = new Nullable<Double>(1.0);
@@ -224,9 +224,9 @@ namespace AngleSharp.Css.Parser
         {
             var h = ParseAngle(source);
             var c1 = source.SkipGetSkip();
-            var s = source.ParsePercent();
+            var s = Within(source.ParsePercent(), 0.0, 1.0);
             var c2 = source.SkipGetSkip();
-            var l = source.ParsePercent();
+            var l = Within(source.ParsePercent(), 0.0, 1.0);
             var c3 = source.SkipGetSkip();
 
             if (h != null && s != null && l != null)
@@ -274,11 +274,11 @@ namespace AngleSharp.Css.Parser
 
         private static CssColorValue? ParseLab(StringSource source)
         {
-            var l = ParseLabComponent(source);
+            var l = Within(ParseLabComponent(source), 0.0, 100.0);
             source.SkipSpacesAndComments();
-            var a = ParseLabComponent(source);
+            var a = ParseLabComponent(source, percentScale: 125.0 / 100.0);
             source.SkipSpacesAndComments();
-            var b = ParseLabComponent(source);
+            var b = ParseLabComponent(source, percentScale: 125.0 / 100.0);
             source.SkipSpacesAndComments();
             var c = source.Current;
             var alpha = new Nullable<Double>(1.0);
@@ -306,9 +306,9 @@ namespace AngleSharp.Css.Parser
 
         private static CssColorValue? ParseLch(StringSource source)
         {
-            var l = ParseLabComponent(source);
+            var l = Within(ParseLabComponent(source), 0.0, 100.0);
             source.SkipSpacesAndComments();
-            var c = ParseLabComponent(source);
+            var c = AtLeast(ParseLabComponent(source, percentScale: 1.5), 0.0);
             source.SkipSpacesAndComments();
             var h = ParseAngle(source);
             source.SkipSpacesAndComments();
@@ -339,11 +339,11 @@ namespace AngleSharp.Css.Parser
 
         private static CssColorValue? ParseOklab(StringSource source)
         {
-            var l = ParseLabComponent(source, numberScale: 100.0);
+            var l = Within(ParseLabComponent(source, numberScale: 100.0), 0.0, 100.0);
             source.SkipSpacesAndComments();
-            var a = ParseLabComponent(source);
+            var a = ParseLabComponent(source, percentScale: 0.004);
             source.SkipSpacesAndComments();
-            var b = ParseLabComponent(source);
+            var b = ParseLabComponent(source, percentScale: 0.004);
             source.SkipSpacesAndComments();
             var c = source.Current;
             var alpha = new Nullable<Double>(1.0);
@@ -371,9 +371,9 @@ namespace AngleSharp.Css.Parser
 
         private static CssColorValue? ParseOklch(StringSource source)
         {
-            var l = ParseLabComponent(source, numberScale: 100.0);
+            var l = Within(ParseLabComponent(source, numberScale: 100.0), 0.0, 100.0);
             source.SkipSpacesAndComments();
-            var c = ParseLabComponent(source);
+            var c = AtLeast(ParseLabComponent(source, percentScale: 0.004), 0.0);
             source.SkipSpacesAndComments();
             var h = ParseAngle(source);
             source.SkipSpacesAndComments();
@@ -419,9 +419,9 @@ namespace AngleSharp.Css.Parser
         {
             var h = ParseHueOrNone(source);
             source.SkipSpacesAndComments();
-            var w = ParsePercentOrNone(source);
+            var w = Within(ParsePercentOrNone(source), 0.0, 1.0);
             source.SkipSpacesAndComments();
-            var b = ParsePercentOrNone(source);
+            var b = Within(ParsePercentOrNone(source), 0.0, 1.0);
             source.SkipSpacesAndComments();
             var c = source.Current;
             var a = new Nullable<Double>(1.0);
@@ -451,9 +451,9 @@ namespace AngleSharp.Css.Parser
         {
             var h = ParseAngle(source);
             var c1 = source.SkipGetSkip();
-            var s = source.ParsePercent();
+            var s = Within(source.ParsePercent(), 0.0, 1.0);
             var c2 = source.SkipGetSkip();
-            var l = source.ParsePercent();
+            var l = Within(source.ParsePercent(), 0.0, 1.0);
             var c3 = source.SkipGetSkip();
 
             if (h != null && s != null && l != null)
@@ -544,7 +544,10 @@ namespace AngleSharp.Css.Parser
             return source.IsIdentifier(CssKeywords.None) ? 0 : default(Double?);
         }
 
-        private static Double? ParseLabComponent(StringSource source, Double numberScale = 1.0)
+        // A percentage of one of these components is a share of that component's own reference range,
+        // which CSS Color 4 10's tables give per function and per argument, and the lightness of the two
+        // families is written on two different scales: 100 of Lab, 1.0 of Oklab.
+        private static Double? ParseLabComponent(StringSource source, Double numberScale = 1.0, Double percentScale = 1.0)
         {
             var pos = source.Index;
             var unit = source.ParseUnit();
@@ -563,7 +566,7 @@ namespace AngleSharp.Css.Parser
 
             if ((unit.Dimension == String.Empty || unit.Dimension == "%") && Double.TryParse(unit.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var value))
             {
-                return unit.Dimension == String.Empty ? value * numberScale : value;
+                return unit.Dimension == String.Empty ? value * numberScale : value * percentScale;
             }
 
             return null;
@@ -646,6 +649,14 @@ namespace AngleSharp.Css.Parser
 
             return source.IsIdentifier(CssKeywords.None) ? 0 : default(Double?);
         }
+
+        // The chapter takes these back into their range where the value is read rather than after the
+        // conversion, which is what keeps a saturation of nothing a grey rather than a colour upside down.
+        private static Double? Within(Double? value, Double lowest, Double highest) =>
+            value is { } found ? Math.Max(Math.Min(found, highest), lowest) : value;
+
+        private static Double? AtLeast(Double? value, Double lowest) =>
+            value is { } found ? Math.Max(found, lowest) : value;
 
         private static Double? ParseAlpha(StringSource source)
         {
