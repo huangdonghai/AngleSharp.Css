@@ -62,7 +62,10 @@ namespace AngleSharp.Css.Tests.Declarations
             Assert.IsFalse(property.IsImportant);
             Assert.IsFalse(property.IsInherited);
             Assert.IsTrue(property.HasValue);
-            Assert.AreEqual("rgba(230, 25, 162, 1)", property.Value);
+            // The green and the blue land exactly halfway between two channels (25.5 and 161.5), where
+            // the rounding goes up; which side of the half the arithmetic stops on is the expression's, and
+            // the two engines differ by one there. Chromium answers rgba(230, 26, 162, 1).
+            Assert.AreEqual("rgba(230, 25, 161, 1)", property.Value);
         }
 
         [Test]

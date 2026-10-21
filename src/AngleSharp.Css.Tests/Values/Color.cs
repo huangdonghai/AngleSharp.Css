@@ -218,7 +218,7 @@ namespace AngleSharp.Css.Tests.Values
         public void CssColorValueHslYellowGreenMixed()
         {
             var color = CssColorValue.FromHsl(1f / 4f, 0.75f, 0.63f);
-            Assert.AreEqual(CssColorValue.FromRgb(161, 232, 90), color);
+            Assert.AreEqual(CssColorValue.FromRgb(161, 231, 90), color);
         }
 
         [Test]

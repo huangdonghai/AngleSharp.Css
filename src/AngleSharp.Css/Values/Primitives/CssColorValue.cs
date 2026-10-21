@@ -676,8 +676,12 @@ namespace AngleSharp.Css.Values
             return (Math.Pow(v, 3.0) > e ? Math.Pow(v, 3.0) : (116.0 * v - 16.0) / k);
         }
 
+        // A channel of a converted colour is a fraction of the full one, and CSS Values 3 4.3 says which
+        // whole number it becomes: 255 of them, and a value standing halfway between two goes up. Scaling
+        // by 256 and cutting off the remainder is a different number - lab(50% 50 0) is 78 of green, which
+        // that way of doing it answers as 77.
         private static Byte Normalize(Double value) =>
-            (Byte)Math.Max(Math.Min(Math.Truncate(256.0 * value), 255.0), 0.0);
+            (Byte)Math.Round(Math.Max(Math.Min(value, 1.0), 0.0) * 255.0, MidpointRounding.AwayFromZero);
 
         private static Double HueToRgb(Double m1, Double m2, Double h)
         {

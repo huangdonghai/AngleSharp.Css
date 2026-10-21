@@ -170,7 +170,7 @@ namespace AngleSharp.Css.Tests.Declarations
             Assert.IsFalse(property.IsImportant);
             Assert.IsFalse(property.IsInherited);
             Assert.IsTrue(property.HasValue);
-            Assert.AreEqual("rgba(85, 78, 42, 0.75)", property.Value);
+            Assert.AreEqual("rgba(85, 78, 43, 0.75)", property.Value);
         }
 
         [Test]
