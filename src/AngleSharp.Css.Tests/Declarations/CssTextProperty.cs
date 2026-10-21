@@ -57,18 +57,6 @@ namespace AngleSharp.Css.Tests.Declarations
         }
 
         [Test]
-        public void CssTextShadowLegalInsetAtLast()
-        {
-            var snippet = "text-shadow: 0 0 2px black inset";
-            var property = ParseDeclaration(snippet);
-            Assert.AreEqual("text-shadow", property.Name);
-            Assert.IsTrue(property.HasValue);
-            Assert.IsFalse(property.IsImportant);
-            Assert.IsFalse(property.IsInherited);
-            Assert.AreEqual("inset 0 0 2px rgba(0, 0, 0, 1)", property.Value);
-        }
-
-        [Test]
         public void CssTextShadowLegalColorInFront()
         {
             var snippet = "text-shadow: rgba(255,255,255,0.5) 0px 3px 3px";

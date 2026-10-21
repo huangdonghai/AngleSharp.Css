@@ -4,6 +4,7 @@ namespace AngleSharp.Css.Parser
     using AngleSharp.Css.Dom;
     using AngleSharp.Css.Values;
     using AngleSharp.Text;
+    using System;
 
     /// <summary>
     /// Represents extensions to for shadow values.
@@ -13,7 +14,18 @@ namespace AngleSharp.Css.Parser
         /// <summary>
         /// Parses the CSS shadow value.
         /// </summary>
-        public static CssShadowValue ParseShadow(this StringSource source)
+        public static CssShadowValue ParseShadow(this StringSource source) =>
+            source.ParseShadow(allowInset: true, allowSpread: true);
+
+        /// <summary>
+        /// Parses the value of a text-shadow, which is a box shadow with less in it: the grammar of
+        /// CSS Text Decoration 4 &amp;sect;4.1 gives it an offset, an optional blur and a colour, and
+        /// neither the spread distance nor the <c>inset</c> keyword that <c>box-shadow</c> takes.
+        /// </summary>
+        public static CssShadowValue ParseTextShadow(this StringSource source) =>
+            source.ParseShadow(allowInset: false, allowSpread: false);
+
+        private static CssShadowValue ParseShadow(this StringSource source, Boolean allowInset, Boolean allowSpread)
         {
             var start = source.Index;
             var inset = false;
@@ -28,7 +40,7 @@ namespace AngleSharp.Css.Parser
             {
                 pos = source.Index;
 
-                if (!inset)
+                if (allowInset && !inset)
                 {
                     inset = source.IsIdentifier(CssKeywords.Inset);
                     source.SkipSpacesAndComments();
@@ -52,7 +64,7 @@ namespace AngleSharp.Css.Parser
                     source.SkipSpacesAndComments();
                 }
 
-                if (spreadRadius == null)
+                if (allowSpread && spreadRadius == null)
                 {
                     spreadRadius = source.ParseLengthOrCalc();
                     source.SkipSpacesAndComments();
@@ -60,7 +72,10 @@ namespace AngleSharp.Css.Parser
 
                 if (!color.HasValue)
                 {
-                    color = source.ParseColor();
+                    // A shadow's colour is any colour, and `currentcolor` is one of them: it is the ink of
+                    // the element the shadow is drawn with, which is what the declaration of a shadow that
+                    // names no colour asks for (CSS Backgrounds 3 §6.1).
+                    color = source.ParseCurrentColor();
                     source.SkipSpacesAndComments();
                 }
             }

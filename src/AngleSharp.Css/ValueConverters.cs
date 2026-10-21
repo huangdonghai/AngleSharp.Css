@@ -1586,6 +1586,15 @@ namespace AngleSharp.Css
             None);
 
         /// <summary>
+        /// Represents multiple text shadow objects, which take an offset, an optional blur and a colour -
+        /// and neither the spread distance nor the inset keyword a box shadow accepts.
+        /// https://drafts.csswg.org/css-text-decor-4/#text-shadow-property
+        /// </summary>
+        public static readonly IValueConverter MultipleTextShadowConverter = Or(
+            FromParser(ShadowParser.ParseTextShadow).FromList(),
+            None);
+
+        /// <summary>
         /// Represents an optional image source object.
         /// https://developer.mozilla.org/en-US/docs/Web/CSS/image
         /// </summary>

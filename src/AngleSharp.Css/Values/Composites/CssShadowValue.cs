@@ -88,6 +88,14 @@ namespace AngleSharp.Css.Values
         public CssColorValue Color => _color ?? CssColorValue.Black;
 
         /// <summary>
+        /// Gets the color the declaration itself wrote, or null where it wrote none. The shadow of a box
+        /// that names no color is drawn in the element's own ink (CSS Backgrounds 3 &amp;sect;6.1), which
+        /// is an answer only the element can give, so a consumer has to be able to tell the absent color
+        /// from the black it is not.
+        /// </summary>
+        public CssColorValue? DeclaredColor => _color;
+
+        /// <summary>
         /// Gets the horizontal offset.
         /// </summary>
         public ICssValue OffsetX => _offsetX;

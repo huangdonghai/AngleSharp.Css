@@ -8,7 +8,7 @@ namespace AngleSharp.Css.Declarations
     {
         public static String Name = PropertyNames.TextShadow;
 
-        public static IValueConverter Converter = MultipleShadowConverter;
+        public static IValueConverter Converter = MultipleTextShadowConverter;
 
         public static ICssValue InitialValue = InitialValues.TextShadowDecl;
 
