@@ -323,9 +323,31 @@ namespace AngleSharp.Css.Tests.Rules
         {
             Assert.IsTrue(Check(@"@supports (color: var(--a,/**/)) { }"));
             Assert.IsTrue(Check(@"@supports (color: var(--a, green)) { }"));
-            // A group that holds a semicolon is the one form still lost: the at-rule's prelude ends at the
-            // semicolon wherever it stands rather than at one outside every group, so neither
-            // `(color: var(--a,(;)))` nor `(color: [;] var(--a))` reaches a check at all.
+            Assert.IsTrue(Check(@"@supports (color: var(--a,(;))) { }"));
+            Assert.IsTrue(Check(@"@supports (color: [;] var(--a)) { }"));
+        }
+
+        [Test]
+        public void SupportsPreludeIsNotCutAtAGroupOpening()
+        {
+            // Syntax 3 §5.4.3 ends an at-rule's prelude at a semicolon and starts its block at a brace only
+            // where nothing is open, so the same characters inside a group carry on as punctuation and the
+            // condition is read at all.
+            Assert.IsTrue(Check(@"@supports (color: { [ var(--a) ] }) { }"));
+            Assert.IsTrue(Check(@"@supports (--a: [;] var(--b)) { }"));
+            // Outside every group the semicolon still ends the at-rule, leaving no block to check.
+            Assert.IsNull(ParseRule(@"@supports (color: red); p { color: green; }"));
+        }
+
+        [Test]
+        public void SupportsPreludeCarriesTheCommentAndTheEscapeInsideIt()
+        {
+            // A comment is one token and an escape belongs to the character behind it, so neither a
+            // semicolon nor a parenthesis standing inside either has a say in where the value ends.
+            Assert.IsTrue(Check(@"@supports (color: /* ; */ var(--a)) { }"));
+            Assert.IsTrue(Check(@"@supports (color: var(--a,/*)*/green)) { }"));
+            Assert.IsTrue(Check(@"@supports (color: var(--a,\;)) { }"));
+            Assert.IsFalse(Check(@"@supports (color: \;red) { }"));
         }
 
         [Test]

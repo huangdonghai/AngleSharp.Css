@@ -472,6 +472,25 @@ h1 { color: green }";
             Assert.AreEqual("not all", media.Media.MediaText);
             var list = media.Media;
             Assert.AreEqual(1, list.Length);
+            // The parenthesis is never closed, so the brace that looks like the block's opener stands inside
+            // an open group and is content of the prelude instead - Syntax 3 §5.4.3 cuts a value at a brace
+            // only where nothing is open. The prelude runs to the end of the sheet, the at-rule takes no
+            // block, and nothing after it is read either, which is what Chrome does with this source.
+            Assert.AreEqual(0, media.Rules.Length);
+        }
+
+        [Test]
+        public void KeepsThePreludeOpenAcrossACommentHoldingASemicolon()
+        {
+            // A comment is one token, so the semicolon inside it is not the one that ends the prelude, and
+            // the block that follows - and the rule after that - are still read.
+            var source = @"@media screen and (min-width: 10px /* ; */) {
+    h1 { color: green }
+}
+h2 { color: green }";
+            var sheet = ParseStyleSheet(source);
+            Assert.AreEqual(2, sheet.Rules.Length);
+            var media = (CssMediaRule)sheet.Rules[0];
             Assert.AreEqual(1, media.Rules.Length);
         }
     }

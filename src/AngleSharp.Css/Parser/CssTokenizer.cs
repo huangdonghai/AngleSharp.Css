@@ -57,7 +57,7 @@ namespace AngleSharp.Css.Parser
         }
 
         /// <summary>
-        /// Gets the trimmed content until either '}' or ';' is hit.
+        /// Gets the trimmed content until a '}' or ';' standing outside every group of the value is hit.
         /// </summary>
         /// <returns>The trimmed string.</returns>
         public String ContentFrom(Int32 position)
@@ -67,15 +67,19 @@ namespace AngleSharp.Css.Parser
             var current = Current;
             var trailingWhitespace = 0;
             var previous = Symbols.EndOfFile;
+            // CSS Syntax 3 §5.4.3 ends a value at a semicolon and starts a block at a brace only where
+            // nothing is open. Inside a group of parentheses, brackets or braces the same characters are
+            // tokens like any other, which is what lets a value state `var(--a,(;))` or a list `[;] green`.
+            var open = 0;
 
             while (current != Symbols.EndOfFile)
             {
-                if (current == Symbols.Semicolon || current == Symbols.CurlyBracketOpen || current == Symbols.CurlyBracketClose)
+                if (open == 0 && (current == Symbols.Semicolon || current == Symbols.CurlyBracketOpen || current == Symbols.CurlyBracketClose))
                 {
                     break;
                 }
 
-                if ((current == 'u' || current == 'U') && !IsIdentContinuation(previous) && TryAppendUrl(sb, ref current, ref previous))
+                if ((current == 'u' || current == 'U') && !IsIdentContinuation(previous) && TryAppendUrl(sb, ref current, ref previous, ref open))
                 {
                     trailingWhitespace = 0;
                     continue;
@@ -120,6 +124,61 @@ namespace AngleSharp.Css.Parser
                     continue;
                 }
 
+                if (current == Symbols.Solidus && TakeAsterisk())
+                {
+                    // A comment is one token, so a bracket inside it opens no group and a semicolon inside it
+                    // ends no value. The whole of it is carried over as it stands.
+                    sb.Append(current).Append(Symbols.Asterisk);
+                    trailingWhitespace = 0;
+                    previous = Symbols.Asterisk;
+                    current = GetNext();
+
+                    while (current != Symbols.EndOfFile)
+                    {
+                        sb.Append(current);
+
+                        if (previous == Symbols.Asterisk && current == Symbols.Solidus)
+                        {
+                            previous = current;
+                            current = GetNext();
+                            break;
+                        }
+
+                        previous = current;
+                        current = GetNext();
+                    }
+
+                    continue;
+                }
+
+                if (current == Symbols.ReverseSolidus)
+                {
+                    // An escape makes the character behind it part of the token it stands in, so an escaped
+                    // bracket neither opens a group nor closes one and an escaped semicolon ends nothing.
+                    sb.Append(current);
+                    current = GetNext();
+
+                    if (current == Symbols.EndOfFile)
+                    {
+                        break;
+                    }
+
+                    sb.Append(current);
+                    trailingWhitespace = current.IsSpaceCharacter() ? trailingWhitespace + 1 : 0;
+                    previous = current;
+                    current = GetNext();
+                    continue;
+                }
+
+                if (current == Symbols.RoundBracketOpen || current == Symbols.SquareBracketOpen || current == Symbols.CurlyBracketOpen)
+                {
+                    open++;
+                }
+                else if (open > 0 && (current == Symbols.RoundBracketClose || current == Symbols.SquareBracketClose || current == Symbols.CurlyBracketClose))
+                {
+                    open--;
+                }
+
                 sb.Append(current);
 
                 if (current == Symbols.Space || current == Symbols.Tab || current == Symbols.LineFeed || current == Symbols.CarriageReturn || current == Symbols.FormFeed)
@@ -145,6 +204,21 @@ namespace AngleSharp.Css.Parser
         }
 
         /// <summary>
+        /// Gets whether the character behind the solidus just taken is an asterisk, consuming it when it is
+        /// and leaving it where it stood when it is not.
+        /// </summary>
+        private Boolean TakeAsterisk()
+        {
+            if (GetNext() != Symbols.Asterisk)
+            {
+                Back();
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Checks if the given character would continue an identifier, i.e. if a
         /// following "url(" belongs to a longer function name such as "myurl(".
         /// </summary>
@@ -156,21 +230,22 @@ namespace AngleSharp.Css.Parser
         /// The contents of an unquoted url token may contain ';', '{' and '}',
         /// which must not be mistaken for the end of the surrounding value.
         /// </summary>
-        private Boolean TryAppendUrl(StringBuilder sb, ref Char current, ref Char previous)
+        private Boolean TryAppendUrl(StringBuilder sb, ref Char current, ref Char previous, ref Int32 open)
         {
             var start = Position;
             var r = GetNext();
             var l = (r == 'r' || r == 'R') ? GetNext() : Symbols.EndOfFile;
-            var open = (l == 'l' || l == 'L') ? GetNext() : Symbols.EndOfFile;
+            var bracket = (l == 'l' || l == 'L') ? GetNext() : Symbols.EndOfFile;
 
-            if (open != Symbols.RoundBracketOpen)
+            if (bracket != Symbols.RoundBracketOpen)
             {
                 Back(Position - start);
                 return false;
             }
 
-            sb.Append(current).Append(r).Append(l).Append(open);
-            previous = open;
+            sb.Append(current).Append(r).Append(l).Append(bracket);
+            open++;
+            previous = bracket;
             current = GetNext();
 
             while (current.IsSpaceCharacter())
@@ -193,6 +268,7 @@ namespace AngleSharp.Css.Parser
 
                 if (current == Symbols.RoundBracketClose)
                 {
+                    open--;
                     previous = current;
                     current = GetNext();
                     return true;

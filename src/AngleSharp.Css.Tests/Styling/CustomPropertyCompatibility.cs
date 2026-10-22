@@ -45,6 +45,18 @@ namespace AngleSharp.Css.Tests.Styling
         }
 
         [Test]
+        public void ValueKeepsTheSemicolonsInsideTheGroupsItOpens()
+        {
+            // Syntax 3 §5.4.3 ends a declaration at a semicolon only where nothing is open, so one that
+            // stands inside a function's fallback or a bracketed list is punctuation like any other and the
+            // value carries it on.
+            var inside = ParseDeclaration("--a:var(--b;c)");
+            var listed = ParseDeclaration("--d:[e;f]");
+            Assert.AreEqual("var(--b;c)", inside.Value);
+            Assert.AreEqual("[e;f]", listed.Value);
+        }
+
+        [Test]
         public void PublicFallbackParserPreservesNestedVariableObjects()
         {
             var source = new StringSource("var(--a,var(--b,red)))");
