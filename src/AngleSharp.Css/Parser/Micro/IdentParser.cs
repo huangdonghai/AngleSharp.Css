@@ -23,6 +23,56 @@ namespace AngleSharp.Css.Parser
         }
 
         /// <summary>
+        /// Parses a custom property name: two dashes and then any run of characters an identifier may hold,
+        /// a digit included. This is the one name in CSS that may begin with a digit - the two dashes stand in
+        /// for the identifier's own first character - and it is what the grammar of an ordinary identifier
+        /// refuses, since that expects a letter, an underscore or an escape where the pair is.
+        /// </summary>
+        public static String ParseCustomName(this StringSource source)
+        {
+            if (source.Current != Symbols.Minus || source.Peek() != Symbols.Minus)
+            {
+                return null;
+            }
+
+            var pos = source.Index;
+            source.Next();
+
+            var current = source.Next();
+            var buffer = StringBuilderPool.Obtain();
+            buffer.Append(Symbols.Minus).Append(Symbols.Minus);
+
+            while (true)
+            {
+                if (current.IsName())
+                {
+                    buffer.Append(current);
+                }
+                else if (source.IsValidEscape())
+                {
+                    buffer.Append(source.ConsumeEscape());
+                }
+                else
+                {
+                    break;
+                }
+
+                current = source.Next();
+            }
+
+            if (buffer.Length == 2)
+            {
+                // Two dashes on their own are not a name; the grammar asks for at least one character after
+                // the pair.
+                source.BackTo(pos);
+                buffer.ToPool();
+                return null;
+            }
+
+            return buffer.ToPool();
+        }
+
+        /// <summary>
         /// Parses a custom CSS identifier value.
         /// </summary>
         public static String ParseCustomIdent(this StringSource source)

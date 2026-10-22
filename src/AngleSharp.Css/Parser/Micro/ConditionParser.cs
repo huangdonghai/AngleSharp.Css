@@ -33,7 +33,10 @@ namespace AngleSharp.Css.Parser
             var pos = source.Index;
             var ident = source.ParseIdent();
 
-            if (ident != null && ident.Isi(CssKeywords.Not))
+            // The grammar asks for `not` and then whitespace before the condition it turns around. Where the
+            // parenthesis follows the keyword at once, the tokenizer has made a function token of it, and no
+            // negation was written at all.
+            if (ident != null && ident.Isi(CssKeywords.Not) && source.Current != Symbols.RoundBracketOpen)
             {
                 source.SkipSpacesAndComments();
                 var condition = source.Group(context);
@@ -109,7 +112,10 @@ namespace AngleSharp.Css.Parser
 
         private static IConditionFunction Declaration(this StringSource source, IBrowsingContext context)
         {
-            var name = source.ParseIdent();
+            // A custom property name is not an identifier the ordinary reading accepts - two dashes stand
+            // where the first character would have to be - and it is a declaration the condition may still
+            // ask about (CSS Variables 1 §3.1).
+            var name = source.ParseCustomName() ?? source.ParseIdent();
             var colon = source.SkipSpacesAndComments();
             source.SkipCurrentAndSpaces();
             var value = source.TakeUntilClosed();

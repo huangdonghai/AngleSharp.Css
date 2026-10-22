@@ -2,6 +2,7 @@
 namespace AngleSharp.Css.Tests.Rules
 {
     using AngleSharp.Css.Dom;
+    using System;
     using NUnit.Framework;
     using static CssConstructionFunctions;
 
@@ -260,6 +261,109 @@ namespace AngleSharp.Css.Tests.Rules
             Assert.IsInstanceOf<CssSupportsRule>(sheet.Rules[0]);
             var supports = sheet.Rules[0] as CssSupportsRule;
             Assert.AreEqual(1, supports.Rules.Length);
+        }
+
+        [Test]
+        public void SupportsCustomPropertyNameIsANameTheConditionKnows()
+        {
+            Assert.IsTrue(Check(@"@supports (--a: green) { }"));
+        }
+
+        [Test]
+        public void SupportsCustomPropertyNameNegatedIsFalse()
+        {
+            Assert.IsFalse(Check(@"@supports (not (--a: green)) { }"));
+        }
+
+        [Test]
+        public void SupportsTwoDashesAloneAreNotAName()
+        {
+            Assert.IsFalse(Check(@"@supports (--: a) { }"));
+        }
+
+        [Test]
+        public void SupportsCustomPropertyWithNothingAfterTheColonStillHolds()
+        {
+            Assert.IsTrue(Check(@"@supports (--a: ) { }"));
+        }
+
+        [Test]
+        public void SupportsCustomPropertyHoldingAVariableReferenceHolds()
+        {
+            Assert.IsTrue(Check(@"@supports (--a: var(--b)) { }"));
+        }
+
+        [Test]
+        public void SupportsVariableReferenceIsNotCheckedAgainstThePropertyGrammar()
+        {
+            // A length where a colour was asked is no reason for the condition to fail: what the reference
+            // will come to is only known once the cascade has been read.
+            Assert.IsTrue(Check(@"@supports (color: 1px var(--a)) { }"));
+        }
+
+        [Test]
+        public void SupportsSpoiledVariableReferenceIsFalseAndItsNegationTrue()
+        {
+            Assert.IsFalse(Check(@"@supports (color: var(--a,!)) { }"));
+            Assert.IsTrue(Check(@"@supports (not (color: var(--a,!))) { }"));
+        }
+
+        [Test]
+        public void SupportsSpoiledFallbacksAreFalseHoweverTheyAreSpoiled()
+        {
+            Assert.IsFalse(Check(@"@supports (color: var(--a,;)) { }"));
+            Assert.IsFalse(Check(@"@supports (color: var(--a,!important)) { }"));
+            Assert.IsFalse(Check(@"@supports (color: var(--a);) { }"));
+            Assert.IsFalse(Check(@"@supports (color: var(--a) !important !important) { }"));
+            Assert.IsFalse(Check(@"@supports (color: var(--a,])) { }"));
+        }
+
+        [Test]
+        public void SupportsFallbackMayHoldWhatItsTopLevelMayNot()
+        {
+            Assert.IsTrue(Check(@"@supports (color: var(--a,/**/)) { }"));
+            Assert.IsTrue(Check(@"@supports (color: var(--a, green)) { }"));
+            // A group that holds a semicolon is the one form still lost: the at-rule's prelude ends at the
+            // semicolon wherever it stands rather than at one outside every group, so neither
+            // `(color: var(--a,(;)))` nor `(color: [;] var(--a))` reaches a check at all.
+        }
+
+        [Test]
+        public void SupportsCommentTokensAreNotDelimiters()
+        {
+            Assert.IsTrue(Check(@"@supports (color: var(--a) <!--) { }"));
+            Assert.IsTrue(Check(@"@supports (color: --> var(--a)) { }"));
+        }
+
+        [Test]
+        public void SupportsUnknownPropertyIsFalseWhateverItsValueNames()
+        {
+            Assert.IsFalse(Check(@"@supports (xprop: red) { }"));
+            Assert.IsFalse(Check(@"@supports (xprop: var(--a)) { }"));
+            Assert.IsFalse(Check(@"@supports (yadayada: x, calc( 2/3 )) { }"));
+        }
+
+        [Test]
+        public void SupportsNegationNeedsWhitespaceBeforeItsCondition()
+        {
+            // Conditional 3 3 asks for `not` and then whitespace; `not(` is a function token, and the
+            // condition as a whole is then neither a negation nor a declaration, so the rule is dropped.
+            Assert.IsNull(ParseRule(@"@supports (not(foo: baz)) { p { color: green; } }"));
+        }
+
+        // A condition that cannot be read at all leaves no rule behind, which is the same answer to the
+        // page as a condition that reads false: its block never applies.
+        static Boolean Check(String source)
+        {
+            var sheet = ParseStyleSheet(source);
+
+            if (sheet.Rules.Length == 0)
+            {
+                return false;
+            }
+
+            var supports = sheet.Rules[0] as CssSupportsRule;
+            return supports.Condition.Check(new DefaultRenderDevice());
         }
     }
 }
