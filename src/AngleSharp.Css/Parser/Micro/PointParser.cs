@@ -30,7 +30,7 @@ namespace AngleSharp.Css.Parser
         {
             var pos = source.Index;
             var x = new CssLengthValue(50f, CssLengthValue.Unit.Percent);
-            var l = source.ParseIdent();
+            var l = source.ParseKeyword();
 
             if (l == null)
             {
@@ -48,6 +48,25 @@ namespace AngleSharp.Css.Parser
 
             source.BackTo(pos);
             return null;
+        }
+
+        /// <summary>
+        /// Reads one word of a position, which is a keyword only when the word stands alone: a word the
+        /// page is calling a function with - <c>calc()</c>, <c>var()</c> and the rest of the math - is no
+        /// keyword of a position, and is left where it stands for the reader of a distance to take.
+        /// </summary>
+        private static String ParseKeyword(this StringSource source)
+        {
+            var pos = source.Index;
+            var word = source.ParseIdent();
+
+            if (word != null && source.Current == Symbols.RoundBracketOpen)
+            {
+                source.BackTo(pos);
+                return null;
+            }
+
+            return word;
         }
 
         /// <summary>
@@ -75,9 +94,9 @@ namespace AngleSharp.Css.Parser
             var pos = source.Index;
             var x = new CssLengthValue(50f, CssLengthValue.Unit.Percent);
             var y = new CssLengthValue(50f, CssLengthValue.Unit.Percent);
-            var l = source.ParseIdent();
+            var l = source.ParseKeyword();
             source.SkipSpacesAndComments();
-            var r = source.ParseIdent();
+            var r = source.ParseKeyword();
 
             if (r != null)
             {
@@ -123,7 +142,7 @@ namespace AngleSharp.Css.Parser
                 else if (f != null)
                 {
                     pos = source.Index;
-                    r = source.ParseIdent();
+                    r = source.ParseKeyword();
 
                     if (r == null)
                     {

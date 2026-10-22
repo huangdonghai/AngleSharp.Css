@@ -743,6 +743,19 @@ namespace AngleSharp.Css.Tests.Declarations
             Assert.IsTrue(property.HasValue);
             Assert.AreEqual("center / cover", property.Value);
         }
+        [Test]
+        public void CssBackgroundPositionCalcLegal()
+        {
+            // CSS Values 4 lets a position be a math function, and a page that does its arithmetic in
+            // one is as ordinary as a page that does it in a size - which the engine resolved while the
+            // position lost the whole declaration.
+            var snippet = "background-position : calc(10px + 10px) 0";
+            var property = ParseDeclaration(snippet);
+            Assert.AreEqual("background-position", property.Name);
+            Assert.IsTrue(property.HasValue);
+            Assert.AreEqual("calc(10px + 10px) 0", property.Value);
+        }
+
     }
 }
 

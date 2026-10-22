@@ -612,5 +612,17 @@ namespace AngleSharp.Css.Tests.Values
                 declarations.GetPropertyValue("background-image"));
         }
 
+        [Test]
+        public void GradientHeadTakesACalcPosition()
+        {
+            // CSS Values 4 lets a position be a math function, and the head of a gradient takes one; the
+            // whole declaration was lost, which is how a page that does its arithmetic in the head lost
+            // the gradient rather than the arithmetic.
+            var source = "radial-gradient(circle farthest-side at calc(50px + 50%) calc(100% - 30px), red, green)";
+            var gradient = GradientConverter.Convert(source) as CssRadialGradientValue;
+
+            Assert.IsNotNull(gradient);
+        }
+
     }
 }
