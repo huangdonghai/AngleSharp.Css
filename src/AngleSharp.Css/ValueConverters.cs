@@ -1601,8 +1601,14 @@ namespace AngleSharp.Css
         /// Represents an optional image source object.
         /// https://developer.mozilla.org/en-US/docs/Web/CSS/image
         /// </summary>
+        /// <summary>
+        /// Represents an image-set() value, which names one picture at more than one resolution.
+        /// </summary>
+        public static readonly IValueConverter ImageSetConverter = FromParser(CompoundParser.ParseImageSet);
+
         public static readonly IValueConverter OptionalImageSourceConverter = Or(
             UrlConverter,
+            ImageSetConverter,
             GradientConverter,
             None);
 

@@ -116,13 +116,24 @@ namespace AngleSharp.Css.Values
         /// <returns>A valid CSS unit or None.</returns>
         public static Unit GetUnit(String s)
         {
-            return s switch
+            // CSS Values 4 §5.2: the units of a resolution are `dpi`, `dpcm` and `dppx`, and `x` is the
+            // alias of `dppx` an image-set is written with. None of them is case sensitive.
+            if (s.Equals("dpcm", StringComparison.OrdinalIgnoreCase))
             {
-                "dpcm" => Unit.Dpcm,
-                "dpi" => Unit.Dpi,
-                "dppx" => Unit.Dppx,
-                _ => Unit.None,
-            };
+                return Unit.Dpcm;
+            }
+
+            if (s.Equals("dpi", StringComparison.OrdinalIgnoreCase))
+            {
+                return Unit.Dpi;
+            }
+
+            if (s.Equals("dppx", StringComparison.OrdinalIgnoreCase) || s.Equals("x", StringComparison.OrdinalIgnoreCase))
+            {
+                return Unit.Dppx;
+            }
+
+            return Unit.None;
         }
 
         /// <summary>

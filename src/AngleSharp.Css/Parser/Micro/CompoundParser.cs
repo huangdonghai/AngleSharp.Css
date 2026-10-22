@@ -124,6 +124,13 @@ namespace AngleSharp.Css.Parser
         /// </summary>
         public static ICssImageValue ParseImageSource(this StringSource source)
         {
+            var set = source.ParseImageSet();
+
+            if (set != null)
+            {
+                return set;
+            }
+
             var url = source.ParseUri();
 
             if (url == null)
@@ -132,6 +139,100 @@ namespace AngleSharp.Css.Parser
             }
 
             return url;
+        }
+
+        /// <summary>
+        /// Parse for an image-set() value: one picture named at more than one resolution
+        /// (CSS Images 4 §4).
+        /// </summary>
+        public static CssImageSetValue ParseImageSet(this StringSource source)
+        {
+            var pos = source.Index;
+            var ident = source.ParseIdent();
+
+            if (ident == null || !ident.Isi(FunctionNames.ImageSet) || source.Current != Symbols.RoundBracketOpen)
+            {
+                source.BackTo(pos);
+                return null;
+            }
+
+            source.SkipCurrentAndSpaces();
+            var options = new List<CssImageSetOption>();
+
+            while (!source.IsDone && source.Current != Symbols.RoundBracketClose)
+            {
+                var image = source.ParseImageSource() ?? ParseImageSetString(source);
+
+                if (image == null)
+                {
+                    source.BackTo(pos);
+                    return null;
+                }
+
+                source.SkipSpacesAndComments();
+                var resolution = source.ParseResolution();
+                source.SkipSpacesAndComments();
+                var type = source.ParseImageSetType();
+
+                options.Add(new CssImageSetOption(image, resolution, type));
+                source.SkipSpacesAndComments();
+
+                if (source.Current != Symbols.Comma)
+                {
+                    break;
+                }
+
+                source.SkipCurrentAndSpaces();
+            }
+
+            if (options.Count == 0 || source.Current != Symbols.RoundBracketClose)
+            {
+                source.BackTo(pos);
+                return null;
+            }
+
+            source.SkipCurrentAndSpaces();
+            return new CssImageSetValue(options.ToArray());
+        }
+
+        /// <summary>
+        /// Reads the option of an image-set that is written as a bare string rather than a url: the grammar
+        /// takes a string there, and the string names a picture the same way (CSS Images 4 §4).
+        /// </summary>
+        private static ICssValue ParseImageSetString(this StringSource source)
+        {
+            var text = source.ParseString();
+
+            return text is null ? null : new CssStringValue(text);
+        }
+
+        /// <summary>
+        /// Reads the type() an image-set option may state, as the text it was written with - it tells a
+        /// reader what kind of picture the resolution belongs to, and no reader of the value needs more.
+        /// </summary>
+        private static String ParseImageSetType(this StringSource source)
+        {
+            var pos = source.Index;
+            var ident = source.ParseIdent();
+
+            if (ident == null || !ident.Isi("type") || source.Current != Symbols.RoundBracketOpen)
+            {
+                source.BackTo(pos);
+                return null;
+            }
+
+            source.SkipCurrentAndSpaces();
+            var mime = source.ParseString();
+            source.SkipSpacesAndComments();
+
+            if (mime == null || source.Current != Symbols.RoundBracketClose)
+            {
+                source.BackTo(pos);
+                return null;
+            }
+
+            source.SkipCurrentAndSpaces();
+            return "type(" + new CssStringValue(mime).CssText + ")";
         }
 
         /// <summary>

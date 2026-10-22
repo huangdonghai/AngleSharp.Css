@@ -301,5 +301,10 @@ namespace AngleSharp.Css
         /// The running function.
         /// </summary>
         public static readonly String Running = "running";
+
+        /// <summary>
+        /// The image-set function, which names one picture at more than one resolution.
+        /// </summary>
+        public static readonly String ImageSet = "image-set";
     }
 }

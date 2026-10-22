@@ -624,5 +624,42 @@ namespace AngleSharp.Css.Tests.Values
             Assert.IsNotNull(gradient);
         }
 
+        [Test]
+        public void ImageSetKeepsEveryCandidateItNames()
+        {
+            // <image-set()> is an <image> like any other (CSS Images 4 4): one picture named at more than
+            // one resolution. Nothing read it, so the whole background-image declaration was dropped and
+            // a box that named a gradient only through a set painted nothing.
+            var source = "image-set(linear-gradient(green, lightgreen) 1x)";
+            var value = GradientConverter.Convert(source);
+
+            Assert.IsNull(value, "a bare image-set is not a gradient");
+
+            var declarations = ParseDeclarations("background-image: " + source);
+            Assert.AreEqual(
+                "image-set(linear-gradient(rgba(0, 128, 0, 1), rgba(144, 238, 144, 1)) 1dppx)",
+                declarations.GetPropertyValue("background-image"));
+        }
+
+        [Test]
+        public void ImageSetKeepsStringsResolutionsAndTypes()
+        {
+            var declarations = ParseDeclarations(
+                "background-image: image-set(\"a.png\" 1x, url(b.png) 2x, conic-gradient(red, blue) 3x type(\"image/svg+xml\"))");
+
+            Assert.AreEqual(
+                "image-set(\"a.png\" 1dppx, url(\"b.png\") 2dppx, conic-gradient(rgba(255, 0, 0, 1), rgba(0, 0, 255, 1)) 3dppx type(\"image/svg+xml\"))",
+                declarations.GetPropertyValue("background-image"));
+        }
+
+        [Test]
+        public void ImageSetIsTakenByTheBackgroundShorthandToo()
+        {
+            var declarations = ParseDeclarations(
+                "background: image-set(radial-gradient(green, lightgreen) 1x) 0 0 / 10px 10px no-repeat");
+
+            StringAssert.Contains("image-set(radial-gradient(rgba(0, 128, 0, 1), rgba(144, 238, 144, 1)) 1dppx)", declarations.GetPropertyValue("background-image"));
+        }
+
     }
 }
