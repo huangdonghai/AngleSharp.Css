@@ -29,6 +29,36 @@ namespace AngleSharp.Css.Tests.Styling
             Assert.AreEqual(String.Empty, style.GetPropertyValue("--b"));
         }
 
+        [Test]
+        public void ShorthandWrittenAsVariableKeepsItsTextOnEveryLonghand()
+        {
+            using var document = ParseDocument("<style>div{--pad:7px;padding:var(--pad)}</style><div></div>");
+            var rule = (ICssStyleRule)document.StyleSheets.OfType<ICssStyleSheet>().First().Rules[0];
+            var style = rule.Style;
+            var left = style.TryGetProperty("padding-left");
+            Assert.IsNotNull(left, "padding-left is declared: " + String.Join(",", style.Select(p => p.Name)));
+            Assert.AreEqual("CssChildValue", left.RawValue?.GetType().Name);
+            Assert.IsTrue(style.TryGetProperty("padding-left").TryGetPendingShorthand(out var name, out var text));
+            Assert.AreEqual("padding", name);
+            Assert.AreEqual("var(--pad)", text);
+            Assert.IsTrue(style.TryGetProperty("padding-top").TryGetPendingShorthand(out name, out text));
+            Assert.AreEqual("padding", name);
+            Assert.AreEqual("var(--pad)", text);
+            Assert.IsFalse(style.TryGetProperty("--pad").TryGetPendingShorthand(out _, out _));
+        }
+
+        [Test]
+        public void ShorthandWrittenAsAValueKeepsNoPendingShorthand()
+        {
+            using var document = ParseDocument("<div></div>");
+            var element = document.QuerySelector("div");
+            element.SetAttribute("style", "padding:7px 8px");
+            var style = element.GetStyle();
+            Assert.AreEqual("7px", style.TryGetProperty("padding-top").Value);
+            Assert.IsFalse(style.TryGetProperty("padding-top").TryGetPendingShorthand(out _, out _));
+            Assert.IsFalse(style.TryGetProperty("padding-left").TryGetPendingShorthand(out _, out _));
+        }
+
         [TestCase("--a:var(--a)")]
         [TestCase("--a:var(--a,visible)")]
         [TestCase("--a:var(--b);--b:var(--a)")]

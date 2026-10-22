@@ -27,6 +27,49 @@ namespace AngleSharp.Css.Dom
         }
 
         /// <summary>
+        /// Gets the shorthand a longhand is standing in place of while its value waits to be
+        /// substituted, together with the text the page wrote for that shorthand.
+        /// </summary>
+        /// <remarks>
+        /// A shorthand whose value names a custom property cannot be taken apart until the property
+        /// has been read, so every one of its longhands is stored as a pending child that keeps the
+        /// whole of the shorthand's own value. The longhand's text is empty until a compute resolves
+        /// it; a consumer that has its own substitution - and its own view of which box the declaration
+        /// belongs to - needs the text back to do that work, and the name to parse it under.
+        /// </remarks>
+        /// <param name="property">The property to read the pending value of.</param>
+        /// <param name="shorthandName">The shorthand the value was written as, if any.</param>
+        /// <param name="shorthandText">The text of that shorthand, if any.</param>
+        /// <returns>True when the longhand is a pending child of a stated shorthand.</returns>
+        public static Boolean TryGetPendingShorthand(this ICssProperty property, out String shorthandName, out String shorthandText)
+        {
+            if (property?.RawValue is CssChildValue child)
+            {
+                var name = child.ShorthandName;
+                var parent = child.Parent;
+
+                // A child of a child keeps the outermost name, which is the shorthand the text
+                // belongs to - the same walk the compute takes before it substitutes.
+                while (parent is CssChildValue inner)
+                {
+                    name = inner.ShorthandName;
+                    parent = inner.Parent;
+                }
+
+                if (name is not null && parent is not null && !String.IsNullOrEmpty(parent.CssText))
+                {
+                    shorthandName = name;
+                    shorthandText = parent.CssText;
+                    return true;
+                }
+            }
+
+            shorthandName = null;
+            shorthandText = null;
+            return false;
+        }
+
+        /// <summary>
         /// Gets the style rule with the provided selector text.
         /// </summary>
         /// <param name="rule">The container rule.</param>

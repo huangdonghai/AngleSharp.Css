@@ -49,6 +49,11 @@ namespace AngleSharp.Css.Values
         public ICssValue Value => _value;
 
         /// <summary>
+        /// Gets the shorthand that supplied the pending value, if one was stated.
+        /// </summary>
+        public String ShorthandName => _shorthandName;
+
+        /// <summary>
         /// Gets the text representation of the longhand.
         /// </summary>
         public String CssText => _value?.CssText ?? String.Empty;
