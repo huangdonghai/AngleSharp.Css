@@ -232,8 +232,19 @@ namespace AngleSharp.Css.Tests.Styling
         public void BackdropFilterInvalid()
         {
             var element = _document.CreateElement("div") as IHtmlElement;
-            element.GetStyle().SetProperty("backdrop-filter", "blur(5px)");
+            element.GetStyle().SetProperty("backdrop-filter", "nonesuch");
             Assert.AreEqual("", element.GetStyle().GetPropertyValue("backdrop-filter"));
+        }
+
+        [Test]
+        public void BackdropFilterFunctionList()
+        {
+            // The grammar is the filter function list, like `filter` (CSS Filter Effects 2 gives
+            // backdrop-filter the filter-functionList); only `none` used to be taken, which threw a
+            // real declaration away.
+            var element = _document.CreateElement("div") as IHtmlElement;
+            element.GetStyle().SetProperty("backdrop-filter", "blur(5px) brightness(1.5)");
+            Assert.AreEqual("blur(5px) brightness(1.5)", element.GetStyle().GetPropertyValue("backdrop-filter"));
         }
 
         [Test]

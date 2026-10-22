@@ -298,16 +298,19 @@ namespace AngleSharp.Css
             Assign(CssKeywords.Exact, CssKeywords.Exact));
 
         /// <summary>
-        /// Represents a converter for the backdrop-filter property.
-        /// </summary>
-        public static readonly IValueConverter BackdropFilterConverter = Assign(CssKeywords.None, CssKeywords.None);
-
-        /// <summary>
         /// Represents a filter function list or the none keyword.
         /// </summary>
         public static readonly IValueConverter FilterConverter = Or(
             Assign(CssKeywords.None, CssKeywords.None),
             FromParser(FilterParser.ParseFilter));
+
+        /// <summary>
+        /// Represents a converter for the backdrop-filter property: the same list of filter functions
+        /// as <c>filter</c> (CSS Filter Effects 2 gives backdrop-filter the filter-functionList, leaving
+        /// out the reference to an external filter). Standing on only the none keyword threw every real
+        /// declaration away, so a box that blurred its backdrop kept nothing from the page.
+        /// </summary>
+        public static readonly IValueConverter BackdropFilterConverter = FilterConverter;
 
         /// <summary>
         /// Represents a converter for blend mode values (mix-blend-mode, background-blend-mode).

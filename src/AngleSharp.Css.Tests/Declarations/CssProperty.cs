@@ -553,6 +553,28 @@ namespace AngleSharp.Css.Tests.Declarations
         }
 
         [Test]
+        public void CssBackdropFilterFunctionListLegal()
+        {
+            // The grammar is the filter function list; taking only `none` threw a real declaration
+            // away, so a page that blurred a backdrop kept nothing from it.
+            var snippet = "backdrop-filter: blur(2px)";
+            var property = ParseDeclaration(snippet);
+            Assert.AreEqual("backdrop-filter", property.Name);
+            Assert.IsTrue(property.HasValue);
+            Assert.AreEqual("blur(2px)", property.Value);
+        }
+
+        [Test]
+        public void CssBackdropFilterNoneLegal()
+        {
+            var snippet = "backdrop-filter: none";
+            var property = ParseDeclaration(snippet);
+            Assert.AreEqual("backdrop-filter", property.Name);
+            Assert.IsTrue(property.HasValue);
+            Assert.AreEqual("none", property.Value);
+        }
+
+        [Test]
         public void CssClipShapeAutoLegal()
         {
             // `auto` stands for the edge of the box on that side, so a shape that states it is a clip -
