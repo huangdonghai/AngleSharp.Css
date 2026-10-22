@@ -220,10 +220,27 @@ namespace AngleSharp.Css.Parser
                     source.SkipCurrentAndSpaces();
                 }
 
+                var at = source.Index;
                 var stop = ParseGradientStop(source);
 
                 if (stop == null)
+                {
+                    // A position with no colour beside it is an interpolation hint: it states where the
+                    // ramp between the two colours on either side reaches their midpoint, and stands for
+                    // neither of them (CSS Images 3 §3.4). Without this the whole function fails, because
+                    // the loop leaves the cursor inside the argument list. The colour read is wound back
+                    // first: it consumes as far as it can guess, and the hint starts where it began.
+                    source.BackTo(at);
+
+                    if (ParseStopPosition(source) is { } hint)
+                    {
+                        stops.Add(new CssGradientStopValue(hint));
+                        current = source.SkipSpacesAndComments();
+                        continue;
+                    }
+
                     break;
+                }
 
                 stops.Add(stop);
 

@@ -15,6 +15,7 @@ namespace AngleSharp.Css.Values
 
         private readonly CssColorValue _color;
         private readonly ICssValue _location;
+        private readonly Boolean _isHint;
 
         #endregion
 
@@ -31,6 +32,17 @@ namespace AngleSharp.Css.Values
             _location = location;
         }
 
+        /// <summary>
+        /// Creates an interpolation hint: the place where the ramp between the two colours on either side
+        /// of it reaches their midpoint, which states no colour of its own (CSS Images 3 §3.4).
+        /// </summary>
+        /// <param name="location">Where the hint stands along the line.</param>
+        public CssGradientStopValue(ICssValue location)
+        {
+            _location = location;
+            _isHint = true;
+        }
+
         #endregion
 
         #region Properties
@@ -39,6 +51,12 @@ namespace AngleSharp.Css.Values
         /// Gets the color of the gradient stop.
         /// </summary>
         public CssColorValue Color => _color;
+
+        /// <summary>
+        /// Gets if this is an interpolation hint rather than a colour stop, which leaves the colour to
+        /// the two stops it stands between.
+        /// </summary>
+        public Boolean IsHint => _isHint;
 
         /// <summary>
         /// Gets if the position is determined.
@@ -58,7 +76,9 @@ namespace AngleSharp.Css.Values
         /// <summary>
         /// Gets the CSS text representation.
         /// </summary>
-        public String CssText => IsDetermined ? String.Concat(_color.CssText, " ", _location.CssText) : _color.CssText;
+        public String CssText => IsHint
+            ? _location.CssText
+            : IsDetermined ? String.Concat(_color.CssText, " ", _location.CssText) : _color.CssText;
 
         #endregion
 
@@ -74,7 +94,7 @@ namespace AngleSharp.Css.Values
             if (other is not null)
             {
                 var comparer = EqualityComparer<ICssValue>.Default;
-                return comparer.Equals(_color, other._color) && comparer.Equals(_location, other._location);
+                return _isHint == other._isHint && comparer.Equals(_color, other._color) && comparer.Equals(_location, other._location);
             }
 
             return false;
@@ -82,8 +102,14 @@ namespace AngleSharp.Css.Values
 
         ICssValue ICssValue.Compute(ICssComputeContext context)
         {
-            var color = ((ICssValue)_color).Compute(context);
             var location = _location?.Compute(context);
+
+            if (_isHint)
+            {
+                return new CssGradientStopValue(location);
+            }
+
+            var color = ((ICssValue)_color).Compute(context);
             return new CssGradientStopValue((CssColorValue)color, location);
         }
 
