@@ -2196,5 +2196,30 @@ namespace AngleSharp.Css
         /// The active keyword for the forced-colors media feature.
         /// </summary>
         public static readonly String Active = "active";
+
+        /// <summary>
+        /// The in keyword that opens the colour-interpolation prefix of a gradient.
+        /// </summary>
+        public static readonly String In = "in";
+
+        /// <summary>
+        /// The longer keyword for the hue interpolation method of a gradient.
+        /// </summary>
+        public static readonly String Longer = "longer";
+
+        /// <summary>
+        /// The shorter keyword for the hue interpolation method of a gradient.
+        /// </summary>
+        public static readonly String Shorter = "shorter";
+
+        /// <summary>
+        /// The increasing keyword for the hue interpolation method of a gradient.
+        /// </summary>
+        public static readonly String Increasing = "increasing";
+
+        /// <summary>
+        /// The decreasing keyword for the hue interpolation method of a gradient.
+        /// </summary>
+        public static readonly String Decreasing = "decreasing";
     }
 }

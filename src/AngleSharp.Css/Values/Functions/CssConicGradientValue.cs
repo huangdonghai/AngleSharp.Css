@@ -19,6 +19,7 @@ namespace AngleSharp.Css.Values
         private readonly ICssValue _center;
         private readonly ICssValue _angle;
         private readonly Boolean _repeating;
+        private readonly String _interpolation;
 
         #endregion
 
@@ -31,12 +32,14 @@ namespace AngleSharp.Css.Values
         /// <param name="center">The center to use.</param>
         /// <param name="stops">The stops to use.</param>
         /// <param name="repeating">Indicates if the gradient is repeating.</param>
-        public CssConicGradientValue(ICssValue angle, ICssValue center, ICssValue[] stops, Boolean repeating = false)
+        /// <param name="interpolation">The colour-interpolation prefix, or null where the head names no space.</param>
+        public CssConicGradientValue(ICssValue angle, ICssValue center, ICssValue[] stops, Boolean repeating = false, String interpolation = null)
         {
             _stops = stops;
             _center = center;
             _angle = angle;
             _repeating = repeating;
+            _interpolation = interpolation;
         }
 
         #endregion
@@ -80,8 +83,15 @@ namespace AngleSharp.Css.Values
             {
                 // The `from` and the `at` are one argument of the function, not two: the grammar puts no
                 // comma between them, and a reader that takes the arguments apart by commas sees a
-                // position where the stops begin and reads the head as a colour stop.
+                // position where the stops begin and reads the head as a colour stop. The space the
+                // colours are mixed in is part of the head too, and where the head is nothing but the
+                // space it still needs the comma that ends it.
                 var head = new List<String>();
+
+                if (_interpolation != null)
+                {
+                    head.Add(_interpolation);
+                }
 
                 if (_angle != null)
                 {
@@ -148,7 +158,7 @@ namespace AngleSharp.Css.Values
                 var comparer = EqualityComparer<ICssValue>.Default;
                 var l = _stops.Length;
 
-                if (comparer.Equals(_angle, other._angle) && comparer.Equals(_center, other._center) && _repeating == other._repeating && l == other._stops.Length)
+                if (comparer.Equals(_angle, other._angle) && comparer.Equals(_center, other._center) && _repeating == other._repeating && l == other._stops.Length && _interpolation == other._interpolation)
                 {
                     for (var i = 0; i < l; i++)
                     {
@@ -179,7 +189,7 @@ namespace AngleSharp.Css.Values
             var center = _center?.Compute(context);
             var angle = _angle?.Compute(context);
             var stops = _stops.Select(m => (CssGradientStopValue)((ICssValue)m).Compute(context)).ToArray();
-            return new CssConicGradientValue(angle, center, stops, _repeating);
+            return new CssConicGradientValue(angle, center, stops, _repeating, _interpolation);
         }
 
         #endregion

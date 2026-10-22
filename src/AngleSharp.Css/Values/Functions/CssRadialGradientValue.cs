@@ -23,6 +23,7 @@ namespace AngleSharp.Css.Values
         private readonly Boolean _repeating;
         private readonly Boolean _circle;
         private readonly SizeMode _sizeMode;
+        private readonly String _interpolation;
 
         #endregion
 
@@ -38,7 +39,8 @@ namespace AngleSharp.Css.Values
         /// <param name="sizeMode">The size mode of the ellipsoid.</param>
         /// <param name="stops">A collection of stops to use.</param>
         /// <param name="repeating">The repeating setting.</param>
-        public CssRadialGradientValue(Boolean circle, CssPoint2D center, ICssValue width, ICssValue height, SizeMode sizeMode, ICssValue[] stops, Boolean repeating = false)
+        /// <param name="interpolation">The colour-interpolation prefix, or null where the head names no space.</param>
+        public CssRadialGradientValue(Boolean circle, CssPoint2D center, ICssValue width, ICssValue height, SizeMode sizeMode, ICssValue[] stops, Boolean repeating = false, String interpolation = null)
         {
             _stops = stops;
             _center = center;
@@ -47,6 +49,7 @@ namespace AngleSharp.Css.Values
             _repeating = repeating;
             _circle = circle;
             _sizeMode = sizeMode;
+            _interpolation = interpolation;
         }
 
         #endregion
@@ -117,7 +120,30 @@ namespace AngleSharp.Css.Values
         /// <summary>
         /// Gets the CSS text representation.
         /// </summary>
-        public String CssText => Name.CssFunction(Arguments.Join(", "));
+        public String CssText
+        {
+            get
+            {
+                var args = new List<ICssValue>(Arguments);
+
+                if (_interpolation != null)
+                {
+                    // The space belongs to the head: it is written in front of the shape and the centre it
+                    // stands beside, and where nothing of the head was written the space is a head of its
+                    // own - joined to the first colour it would read as one argument that is neither.
+                    if (args.Count > 0 && args[0] is CssAnyValue head)
+                    {
+                        args[0] = new CssAnyValue(String.Concat(_interpolation, " ", head.CssText));
+                    }
+                    else
+                    {
+                        args.Insert(0, new CssAnyValue(_interpolation));
+                    }
+                }
+
+                return Name.CssFunction(String.Join(", ", args.Select(m => m.CssText)));
+            }
+        }
 
         /// <summary>
         /// Gets if the gradient should always be displayed as a circle.
@@ -168,7 +194,7 @@ namespace AngleSharp.Css.Values
             if (other is not null)
             {
                 var comparer = EqualityComparer<ICssValue>.Default;
-                if (comparer.Equals(_center, other._center) && comparer.Equals(_width, other._width) && comparer.Equals(_height, other._height) && _repeating == other._repeating && _sizeMode == other._sizeMode && _circle == other._circle)
+                if (comparer.Equals(_center, other._center) && comparer.Equals(_width, other._width) && comparer.Equals(_height, other._height) && _repeating == other._repeating && _sizeMode == other._sizeMode && _circle == other._circle && _interpolation == other._interpolation)
                 {
                     var count = _stops.Length;
 
@@ -203,7 +229,7 @@ namespace AngleSharp.Css.Values
             var width = _width?.Compute(context);
             var height = _height?.Compute(context);
             var stops = _stops.Select(m => (CssGradientStopValue)((ICssValue)m).Compute(context)).ToArray();
-            return new CssRadialGradientValue(_circle, center, width, height, _sizeMode, stops, _repeating);
+            return new CssRadialGradientValue(_circle, center, width, height, _sizeMode, stops, _repeating, _interpolation);
         }
 
         Boolean IEquatable<ICssValue>.Equals(ICssValue other) => other is CssRadialGradientValue value && Equals(value);

@@ -544,5 +544,73 @@ namespace AngleSharp.Css.Tests.Values
                 "conic-gradient(from 45deg at 30% 70%, rgba(255, 0, 0, 1), rgba(0, 0, 255, 1))",
                 gradient.CssText);
         }
+        [Test]
+        public void LinearGradientCarriesTheSpaceItIsMixedIn()
+        {
+            // CSS Color 4 13.2 lets a gradient head open with "in <color-space>", before the direction.
+            // The parser took the head from the first token, so the whole function failed on a page that
+            // named the space and the declaration was dropped.
+            var source = "linear-gradient(in oklab to right, red, blue)";
+            var gradient = GradientConverter.Convert(source) as CssLinearGradientValue;
+
+            Assert.IsNotNull(gradient);
+            Assert.AreEqual(
+                "linear-gradient(in oklab 90deg, rgba(255, 0, 0, 1), rgba(0, 0, 255, 1))",
+                gradient.CssText);
+            Assert.IsNotNull(GradientConverter.Convert(gradient.CssText), "and the text it writes parses back");
+        }
+
+        [Test]
+        public void LinearGradientWithNoDirectionWritesItsSpaceAsOneArgument()
+        {
+            // The space is part of the head, so where there is no direction to stand beside it, it is the
+            // head and the comma that ends it comes after it. Joined to the first colour instead, a reader
+            // taking the arguments apart by commas finds neither.
+            var source = "linear-gradient(in hsl longer hue, red, blue)";
+            var gradient = GradientConverter.Convert(source) as CssLinearGradientValue;
+
+            Assert.IsNotNull(gradient);
+            Assert.AreEqual(
+                "linear-gradient(in hsl longer hue, rgba(255, 0, 0, 1), rgba(0, 0, 255, 1))",
+                gradient.CssText);
+            Assert.IsNotNull(GradientConverter.Convert(gradient.CssText));
+        }
+
+        [Test]
+        public void RadialGradientCarriesItsSpaceBesideTheShape()
+        {
+            var source = "radial-gradient(in oklab circle, red, blue)";
+            var gradient = GradientConverter.Convert(source) as CssRadialGradientValue;
+
+            Assert.IsNotNull(gradient);
+            StringAssert.StartsWith("radial-gradient(in oklab circle", gradient.CssText);
+            Assert.IsNotNull(GradientConverter.Convert(gradient.CssText));
+        }
+
+        [Test]
+        public void ConicGradientCarriesItsSpaceAndItsHueMethod()
+        {
+            var source = "conic-gradient(in oklch longer hue, red, blue)";
+            var gradient = GradientConverter.Convert(source) as CssConicGradientValue;
+
+            Assert.IsNotNull(gradient);
+            Assert.AreEqual(
+                "conic-gradient(in oklch longer hue, rgba(255, 0, 0, 1), rgba(0, 0, 255, 1))",
+                gradient.CssText);
+            Assert.IsNotNull(GradientConverter.Convert(gradient.CssText));
+        }
+
+        [Test]
+        public void GradientKeepsItsSpaceWhenTheValueIsComputed()
+        {
+            // Computing resolves the stops and rebuilds the value; a space left out of that rebuild is
+            // lost from the computed style, which is what a reader of the page actually sees.
+            var declarations = ParseDeclarations("background-image: linear-gradient(in oklab to right, red, blue)");
+
+            Assert.AreEqual(
+                "linear-gradient(in oklab 90deg, rgba(255, 0, 0, 1), rgba(0, 0, 255, 1))",
+                declarations.GetPropertyValue("background-image"));
+        }
+
     }
 }
