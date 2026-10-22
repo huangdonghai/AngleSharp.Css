@@ -78,19 +78,27 @@ namespace AngleSharp.Css.Values
         {
             get
             {
-                var defaultAngle = _angle as CssAngleValue?;
-                var defaultPosition = _center as CssPoint2D?;
-                var offset = (defaultAngle.HasValue ? 1 : 0) + (defaultPosition.HasValue ? 1 : 0);
-                var args = new String[_stops.Length + offset];
+                // The `from` and the `at` are one argument of the function, not two: the grammar puts no
+                // comma between them, and a reader that takes the arguments apart by commas sees a
+                // position where the stops begin and reads the head as a colour stop.
+                var head = new List<String>();
 
-                if (defaultAngle.HasValue)
+                if (_angle != null)
                 {
-                    args[0] = $"from {defaultAngle.Value.CssText}";
+                    head.Add($"from {_angle.CssText}");
                 }
 
-                if (defaultPosition.HasValue)
+                if (_center != null)
                 {
-                    args[offset - 1] = $"at {defaultPosition.Value.CssText}";
+                    head.Add($"at {_center.CssText}");
+                }
+
+                var offset = head.Count > 0 ? 1 : 0;
+                var args = new String[_stops.Length + offset];
+
+                if (offset > 0)
+                {
+                    args[0] = String.Join(" ", head);
                 }
 
                 for (var i = 0; i < _stops.Length; i++)

@@ -226,6 +226,18 @@ namespace AngleSharp.Css.Parser
                     break;
 
                 stops.Add(stop);
+
+                // A stop may state how far its colour reaches as well as where it begins, and that is the
+                // same colour stood at both ends of it (CSS Images 3 §3.4.2): `red 0 30px` is `red 0,
+                // red 30px`. The grammar gives no marker to the second position, so it is read as another
+                // stop of the colour just written - which is all the two spellings come to.
+                source.SkipSpacesAndComments();
+
+                if (stop.IsDetermined && ParseStopPosition(source) is { } reached)
+                {
+                    stops.Add(new CssGradientStopValue(stop.Color, reached));
+                }
+
                 current = source.SkipSpacesAndComments();
             }
 
@@ -236,14 +248,7 @@ namespace AngleSharp.Css.Parser
         {
             var color = source.ParseColor();
             source.SkipSpacesAndComments();
-            // A conic-gradient's stops are naturally positioned with angles (e.g. "red 0deg"), not
-            // just <length-percentage> - this same stop parser is shared across linear/radial/conic
-            // (no gradient-kind context is threaded through), so distance/percent is tried first
-            // (the common case for linear/radial) and angle only as a fallback once that fails and
-            // backtracks. Without this, any angle-positioned stop left the source mid-token instead
-            // of at the following comma/close-paren, which made the *entire* gradient fail to parse
-            // rather than just that one stop's position.
-            var position = source.ParseDistanceOrCalc() ?? source.ParseAngleOrCalc();
+            var position = ParseStopPosition(source);
 
             if (color.HasValue)
             {
@@ -251,6 +256,31 @@ namespace AngleSharp.Css.Parser
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Reads where a colour stop stands: a distance, or the angle a sweep is turned to.
+        /// </summary>
+        /// <remarks>
+        /// A conic gradient's stops are naturally positioned with angles (e.g. "red 0deg"), not just
+        /// &lt;length-percentage&gt; - this same stop parser is shared across linear/radial/conic (no
+        /// gradient-kind context is threaded through), so distance/percent is tried first (the common
+        /// case for linear/radial) and angle only as a fallback once that fails and backtracks. Without
+        /// this, any angle-positioned stop left the source mid-token instead of at the following
+        /// comma/close-paren, which made the *entire* gradient fail to parse rather than just that one
+        /// stop's position.
+        /// </remarks>
+        private static ICssValue ParseStopPosition(StringSource source)
+        {
+            var start = source.Index;
+            var position = source.ParseDistanceOrCalc() ?? source.ParseAngleOrCalc();
+
+            if (position == null)
+            {
+                source.BackTo(start);
+            }
+
+            return position;
         }
 
         private static ICssValue ParseLinearAngle(StringSource source)

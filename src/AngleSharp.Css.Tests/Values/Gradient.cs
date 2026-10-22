@@ -512,5 +512,37 @@ namespace AngleSharp.Css.Tests.Values
             Assert.AreEqual(CssAngleValue.Quarter, stops[1].Location);
             Assert.AreEqual(new CssAngleValue(360.0, CssAngleValue.Unit.Deg), stops[2].Location);
         }
+        [Test]
+        public void ConicGradientStandsADoublePositionedColourAtBothEnds()
+        {
+            // CSS Images 3 §3.4.2 makes "red 0deg 90deg" the same colour at both ends of that span,
+            // which is how a slice of a pie is written. ParseGradientStop read one position only, so the
+            // second was left mid-token and the whole gradient failed to parse.
+            var source = "conic-gradient(red 0deg 90deg, blue 90deg 1turn)";
+            var gradient = GradientConverter.Convert(source) as CssConicGradientValue;
+
+            Assert.IsNotNull(gradient);
+            var stops = gradient.Stops.OfType<CssGradientStopValue>().ToArray();
+            Assert.AreEqual(4, stops.Length);
+            Assert.AreEqual(CssAngleValue.Zero, stops[0].Location);
+            Assert.AreEqual(CssAngleValue.Quarter, stops[1].Location);
+            Assert.AreEqual(stops[0].Color, stops[1].Color, "the span's far end carries the same colour");
+            Assert.AreEqual(stops[2].Color, stops[3].Color, "and so does the next one's");
+        }
+
+        [Test]
+        public void ConicGradientWritesItsHeadAsOneArgument()
+        {
+            // `from <angle> at <position>` is one argument of the function and the grammar puts no comma
+            // between its halves. The serializer wrote them as two, so a reader that takes the arguments
+            // apart by commas found a position where the first colour stop should stand.
+            var source = "conic-gradient(from 45deg at 30% 70%, red, blue)";
+            var gradient = GradientConverter.Convert(source) as CssConicGradientValue;
+
+            Assert.IsNotNull(gradient);
+            Assert.AreEqual(
+                "conic-gradient(from 45deg at 30% 70%, rgba(255, 0, 0, 1), rgba(0, 0, 255, 1))",
+                gradient.CssText);
+        }
     }
 }
