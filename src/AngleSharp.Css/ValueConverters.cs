@@ -561,9 +561,11 @@ namespace AngleSharp.Css
         /// <summary>
         /// Represents a converter for the initial-letter property.
         /// </summary>
+        // `initial-letter` takes a number of lines, an optional sink depth and - in the spelling the
+        // WPT suite writes and browsers still read - the legacy `drop`/`raise` word (CSS Inline 3 §3.2).
         public static readonly IValueConverter InitialLetterConverter = Or(
             Assign(CssKeywords.Normal, CssKeywords.Normal),
-            NumberConverter);
+            WithAny(NumberConverter, IntegerConverter, IdentifierConverter));
 
         /// <summary>
         /// Represents a converter for the initial-letter-align property.
