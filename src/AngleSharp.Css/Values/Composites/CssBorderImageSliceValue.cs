@@ -139,11 +139,18 @@ namespace AngleSharp.Css.Values
 
         ICssValue ICssValue.Compute(ICssComputeContext context)
         {
-            var bottom = _bottom.Compute(context);
-            var left = _left.Compute(context);
-            var right = _right.Compute(context);
-            var top = _top.Compute(context);
+            var bottom = Side(_bottom);
+            var left = Side(_left);
+            var right = Side(_right);
+            var top = Side(_top);
             return new CssBorderImageSliceValue(top, right, bottom, left, _filled);
+
+            // A slice side is a number or a percentage, not a length: a percentage slices the picture
+            // and keeps its text, and the marker the parser leaves where the page wrote no side is not
+            // a measurement at all. Folding either through the device printed a NaN pixel length the
+            // page never asked for (`border-image-slice: 2` read `2 NaNpx NaNpx NaNpx`).
+            ICssValue Side(ICssValue side) =>
+                side is CssLengthValue { IsRelative: true } ? side : side.Compute(context);
         }
 
         #endregion
