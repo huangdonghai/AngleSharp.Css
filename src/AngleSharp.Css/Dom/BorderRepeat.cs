@@ -21,6 +21,11 @@
         /// after being repeated an integral number of times, the image is
         /// rescaled to fit.
         /// </summary>
-        Round
+        Round,
+        /// <summary>
+        /// Keyword indicating that the image must be repeated at its own size, with the space left over
+        /// shared equally between the copies (CSS Backgrounds 3 §6.4).
+        /// </summary>
+        Space
     }
 }

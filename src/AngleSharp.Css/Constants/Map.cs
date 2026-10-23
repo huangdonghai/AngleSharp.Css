@@ -351,6 +351,7 @@ namespace AngleSharp.Css
             { CssKeywords.Stretch, BorderRepeat.Stretch },
             { CssKeywords.Repeat, BorderRepeat.Repeat },
             { CssKeywords.Round, BorderRepeat.Round },
+            { CssKeywords.Space, BorderRepeat.Space },
         };
 
         /// <summary>
