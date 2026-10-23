@@ -1770,7 +1770,12 @@ namespace AngleSharp.Css
                 Or(LineStyleConverter, VarConverter).Option(lineStyle),
                 Or(CurrentColorConverter, VarConverter).Option(lineColor)));
 
-        public static readonly IValueConverter GridTemplateConverter = Or(None, TrackListConverter.Exclusive(), AutoTrackListConverter.Exclusive());
+        // A grid template longhand is either `none`, `subgrid` (CSS Grid 2 §8), or a track list.
+        public static readonly IValueConverter GridTemplateConverter = Or(
+            None,
+            FromParser(GridParser.ParseSubgrid),
+            TrackListConverter.Exclusive(),
+            AutoTrackListConverter.Exclusive());
 
         public static readonly IValueConverter GridAutoConverter = TrackSizeConverter.Many();
 

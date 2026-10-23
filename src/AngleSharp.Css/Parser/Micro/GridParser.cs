@@ -308,6 +308,28 @@ namespace AngleSharp.Css.Parser
         public static ICssValue ParseTrackList(this StringSource source) => source.ParseRepeatValue(s => s.ParseTrackSize() ?? s.ParseTrackRepeat());
 
         /// <summary>
+        /// Parses the <c>subgrid</c> keyword of a grid template longhand (CSS Grid 2 §8). The line names
+        /// written after it name the borrowed lines; line names are not resolved yet, so they are parsed
+        /// and dropped rather than left to make the declaration invalid.
+        /// </summary>
+        public static ICssValue ParseSubgrid(this StringSource source)
+        {
+            if (!source.IsIdentifier("subgrid"))
+            {
+                return null;
+            }
+
+            source.SkipSpacesAndComments();
+
+            while (source.ParseLineNames() is not null)
+            {
+                source.SkipSpacesAndComments();
+            }
+
+            return new CssIdentifierValue("subgrid");
+        }
+
+        /// <summary>
         /// Parses an explicit track list value.
         /// </summary>
         public static ICssValue ParseExplicitTrackList(this StringSource source) => source.ParseRepeatValue(s => s.ParseTrackSize());
