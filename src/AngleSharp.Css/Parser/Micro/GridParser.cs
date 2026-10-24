@@ -119,6 +119,15 @@ namespace AngleSharp.Css.Parser
             if (source.Current == Symbols.SquareBracketOpen)
             {
                 source.SkipCurrentAndSpaces();
+
+                // A group with nothing in it names no line but still stands for one, which is what
+                // keeps the groups after a subgrid lined up with the lines they name.
+                if (source.Current == Symbols.SquareBracketClose)
+                {
+                    source.Next();
+                    return new CssLineNamesValue(Array.Empty<String>());
+                }
+
                 var names = new List<String>();
 
                 while (!source.IsDone)
@@ -310,9 +319,8 @@ namespace AngleSharp.Css.Parser
         public static ICssValue ParseTrackList(this StringSource source) => source.ParseRepeatValue(s => s.ParseTrackSize() ?? s.ParseTrackRepeat());
 
         /// <summary>
-        /// Parses the <c>subgrid</c> keyword of a grid template longhand (CSS Grid 2 §8). The line names
-        /// written after it name the borrowed lines; line names are not resolved yet, so they are parsed
-        /// and dropped rather than left to make the declaration invalid.
+        /// Parses the <c>subgrid</c> keyword of a grid template longhand (CSS Grid 2 §8). The groups
+        /// written after it name the borrowed lines in order, and are kept for the layout to stand on.
         /// </summary>
         public static ICssValue ParseSubgrid(this StringSource source)
         {
@@ -323,12 +331,15 @@ namespace AngleSharp.Css.Parser
 
             source.SkipSpacesAndComments();
 
-            while (source.ParseLineNames() is not null)
+            var lines = new List<CssLineNamesValue>();
+
+            while (source.ParseLineNames() is CssLineNamesValue names)
             {
+                lines.Add(names);
                 source.SkipSpacesAndComments();
             }
 
-            return new CssIdentifierValue("subgrid");
+            return new CssSubgridValue(lines);
         }
 
         /// <summary>
