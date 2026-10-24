@@ -89,11 +89,26 @@ namespace AngleSharp.Css.Parser
         /// </summary>
         private static IConditionFunction Function(this StringSource source, IBrowsingContext context)
         {
-            if (!source.IsFunction("at-rule"))
+            if (source.IsFunction("at-rule"))
             {
-                return null;
+                var name = source.FunctionArgument();
+
+                return name.Length > 0 ? new AtRuleCondition(name) : null;
             }
 
+            if (source.IsFunction("selector"))
+            {
+                var selector = source.FunctionArgument();
+
+                return selector.Length > 0 ? new SelectorCondition(context, selector) : null;
+            }
+
+            return null;
+        }
+
+        /// <summary>Reads the text of a function's argument, up to the bracket that closes it.</summary>
+        private static String FunctionArgument(this StringSource source)
+        {
             if (source.Current == Symbols.RoundBracketOpen)
             {
                 source.Next();
@@ -102,7 +117,7 @@ namespace AngleSharp.Css.Parser
             var argument = source.TakeUntilClosed().Trim();
             source.SkipCurrentAndSpaces();
 
-            return argument.Length > 0 ? new AtRuleCondition(argument) : null;
+            return argument;
         }
 
         private static IConditionFunction Group(this StringSource source, IBrowsingContext context)
