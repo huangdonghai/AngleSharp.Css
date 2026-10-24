@@ -789,7 +789,9 @@ namespace AngleSharp.Css.Parser
                     // semicolon or a bang would have ended it at, and a custom property reads that
                     // production as its whole grammar - which is the one thing that lets its value be
                     // nothing at all (CSS Syntax 3 §5.4.3, CSS Variables 1 §3, §3.1).
-                    var stated = value.IsDeclarationValue(allowEmpty: name.StartsWith("--", StringComparison.Ordinal));
+                    var stated = value.IsDeclarationValue(
+                        allowEmpty: name.StartsWith("--", StringComparison.Ordinal),
+                        pastTheEnd: !_tokenizer.BadString);
 
                     if (!stated)
                     {

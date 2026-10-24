@@ -20,6 +20,12 @@ namespace AngleSharp.Css.Parser
 
         private TextPosition _position;
 
+        /// <summary>
+        /// Gets whether the content last taken holds a string that a line broke before it ended, which
+        /// is a bad-string token rather than a string the end of the input would have closed.
+        /// </summary>
+        public Boolean BadString { get; private set; }
+
         #endregion
 
         #region Events
@@ -67,10 +73,13 @@ namespace AngleSharp.Css.Parser
             var current = Current;
             var trailingWhitespace = 0;
             var previous = Symbols.EndOfFile;
+            var broke = false;
             // CSS Syntax 3 §5.4.3 ends a value at a semicolon and starts a block at a brace only where
             // nothing is open. Inside a group of parentheses, brackets or braces the same characters are
             // tokens like any other, which is what lets a value state `var(--a,(;))` or a list `[;] green`.
             var open = 0;
+
+            BadString = false;
 
             while (current != Symbols.EndOfFile)
             {
@@ -109,6 +118,10 @@ namespace AngleSharp.Css.Parser
 
                             sb.Append(current);
                         }
+                        else if (current.IsLineBreak())
+                        {
+                            broke = true;
+                        }
 
                         previous = current;
                         current = GetNext();
@@ -119,6 +132,12 @@ namespace AngleSharp.Css.Parser
                         sb.Append(current);
                         previous = current;
                         current = GetNext();
+                    }
+                    else
+                    {
+                        // The string was never closed. Where a line came inside it first, it is a
+                        // bad-string; where the input ran out at it, the input is its close.
+                        BadString = broke;
                     }
 
                     continue;

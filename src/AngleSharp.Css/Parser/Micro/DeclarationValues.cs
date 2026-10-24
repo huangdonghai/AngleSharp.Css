@@ -20,12 +20,23 @@ namespace AngleSharp.Css.Parser
         /// <summary>The deepest nesting of groups this keeps track of.</summary>
         const Int32 Depth = 32;
 
-        /// <summary>Gets whether the whole of <paramref name="text"/> is a value a declaration may carry.</summary>
-        public static Boolean IsDeclarationValue(this String text, Boolean allowEmpty = false) =>
-            text is not null && IsStated(text, 0, text.Length, allowEmpty);
+        /// <summary>
+        /// Gets whether the whole of <paramref name="text" /> is a value a declaration may carry.
+        /// </summary>
+        /// <param name="text">The value as the declaration wrote it.</param>
+        /// <param name="allowEmpty">Whether the value may hold no token at all.</param>
+        /// <param name="pastTheEnd">
+        /// Whether the value ends where the input does, rather than at a delimiter that stood after
+        /// it - which is what closes a string the sheet never closed.
+        /// </param>
+        public static Boolean IsDeclarationValue(
+            this String text,
+            Boolean allowEmpty = false,
+            Boolean pastTheEnd = false) =>
+            text is not null && IsStated(text, 0, text.Length, allowEmpty, pastTheEnd);
 
         /// <summary>Gets whether the text between two places is a value a declaration may carry.</summary>
-        static Boolean IsStated(String text, Int32 at, Int32 end, Boolean allowEmpty = false)
+        static Boolean IsStated(String text, Int32 at, Int32 end, Boolean allowEmpty, Boolean pastTheEnd)
         {
             Span<Boolean> whole = stackalloc Boolean[Depth + 1];
 
@@ -62,7 +73,7 @@ namespace AngleSharp.Css.Parser
 
                 if (character == '"' || character == '\'')
                 {
-                    if (!ReadString(text, ref at, end, character))
+                    if (!ReadString(text, ref at, end, character, pastTheEnd))
                     {
                         return false;
                     }
@@ -163,7 +174,7 @@ namespace AngleSharp.Css.Parser
         }
 
         /// <summary>Reads a quoted string, leaving the cursor past its closing quote.</summary>
-        static Boolean ReadString(String text, ref Int32 at, Int32 end, Char quote)
+        static Boolean ReadString(String text, ref Int32 at, Int32 end, Char quote, Boolean pastTheEnd)
         {
             at++;
 
@@ -191,7 +202,9 @@ namespace AngleSharp.Css.Parser
                 }
             }
 
-            return false;
+            // Nothing but the end of the input stopped the string, and where the sheet itself ran out
+            // the string is closed as surely as by its own quote (CSS Syntax 3 §4.3.5).
+            return pastTheEnd;
         }
 
         /// <summary>Gets whether the three characters here begin the name of a variable reference.</summary>

@@ -114,6 +114,9 @@ namespace AngleSharp.Css.Parser
                 switch (f)
                 {
                     case Symbols.RoundBracketClose:
+                    // A reference the sheet never closed is closed where the input ends, and the
+                    // declaration it was written in stands as one that was closed (CSS Syntax 3 §5.4.3).
+                    case Symbols.EndOfFile:
                         return new CssVarValue(name);
                     case Symbols.Comma:
                         source.SkipSpacesAndComments();
@@ -139,7 +142,12 @@ namespace AngleSharp.Css.Parser
                 var name = source.ParseCustomIdent();
                 var separator = source.SkipGetSkip();
 
-                if (name is null || (separator != Symbols.Comma && separator != Symbols.RoundBracketClose))
+                // The end of the input closes a reference the sheet never closed, at every depth of
+                // the nesting, exactly as the paren that was left out would have.
+                if (name is null ||
+                    (separator != Symbols.Comma &&
+                     separator != Symbols.RoundBracketClose &&
+                     separator != Symbols.EndOfFile))
                 {
                     readFallback = false;
                     break;
@@ -147,7 +155,7 @@ namespace AngleSharp.Css.Parser
 
                 names.Push(name);
 
-                if (separator == Symbols.RoundBracketClose)
+                if (separator != Symbols.Comma)
                 {
                     readFallback = false;
                     break;
