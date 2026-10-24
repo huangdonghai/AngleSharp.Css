@@ -57,6 +57,16 @@ namespace AngleSharp.Css.Parser
 
         #endregion
 
+        #region At-rules
+
+        /// <summary>
+        /// Gets whether the parser has a rule for an at-rule of this name, which is what a
+        /// <c>@supports at-rule()</c> condition asks about it (CSS Conditional 4 §3.1).
+        /// </summary>
+        internal static Boolean KnowsAtRule(String name) => AtRuleMap.ContainsKey(name);
+
+        #endregion
+
         #region Create Rules
 
         public ICssRule CreateRule(ICssStyleSheet sheet, CssToken token) => CreateRule(sheet, token, inGroup: false);
@@ -678,6 +688,17 @@ namespace AngleSharp.Css.Parser
 
             while (token.IsNot(CssTokenType.EndOfFile, CssTokenType.CurlyBracketClose))
             {
+                // A lone semicolon between the rules of a group stands for nothing at all, and it is not a
+                // selector either: read as the start of a style rule it takes the rest of the block with it,
+                // and the whole group is then dropped for not having closed - which is how one stray `;`
+                // after a rule cost an `@supports` block everything in it (CSS Syntax 3 §5.4.1).
+                if (token.Type == CssTokenType.Semicolon)
+                {
+                    token = NextToken();
+                    CollectTrivia(group.Owner, ref token);
+                    continue;
+                }
+
                 var rule = CreateRule(group.Owner, token, inGroup: true);
                 if (rule != null)
                 {

@@ -82,6 +82,29 @@ namespace AngleSharp.Css.Parser
             return condition;
         }
 
+        /// <summary>
+        /// Reads a condition written as a function, of which CSS Conditional 4 knows <c>selector()</c>,
+        /// <c>at-rule()</c>, <c>font-format()</c> and <c>font-tech()</c>. The tokenizer makes one token of
+        /// the name and its opening bracket, so the argument is read to the bracket that closes it.
+        /// </summary>
+        private static IConditionFunction Function(this StringSource source, IBrowsingContext context)
+        {
+            if (!source.IsFunction("at-rule"))
+            {
+                return null;
+            }
+
+            if (source.Current == Symbols.RoundBracketOpen)
+            {
+                source.Next();
+            }
+
+            var argument = source.TakeUntilClosed().Trim();
+            source.SkipCurrentAndSpaces();
+
+            return argument.Length > 0 ? new AtRuleCondition(argument) : null;
+        }
+
         private static IConditionFunction Group(this StringSource source, IBrowsingContext context)
         {
             if (source.Current == Symbols.RoundBracketOpen)
@@ -107,7 +130,7 @@ namespace AngleSharp.Css.Parser
                 }
             }
 
-            return null;
+            return source.Function(context);
         }
 
         private static IConditionFunction Declaration(this StringSource source, IBrowsingContext context)
