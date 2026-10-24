@@ -86,6 +86,18 @@ namespace AngleSharp.Css.Parser
                 current = source.Next();
             }
 
+            // A dashed ident - the name of a custom property, which is what a `var()` reference and a
+            // custom property declaration take - is the two hyphens and then anything an identifier's
+            // name may hold, a digit included. The rule that keeps an identifier from beginning with a
+            // digit was already answered by the hyphens, so handing the pair to `Start`, which is
+            // written for an identifier that has not begun yet, refused names the grammar allows
+            // (CSS Syntax 3 §4.2.7, CSS Variables 1 §2).
+            if (current == Symbols.Minus && buffer.Length == 1)
+            {
+                buffer.Append(Symbols.Minus);
+                return Rest(source, source.Next(), buffer);
+            }
+
             return Start(source, current, buffer);
         }
 
