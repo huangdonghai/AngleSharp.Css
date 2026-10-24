@@ -59,12 +59,25 @@ namespace AngleSharp.Css.Parser
 
         #region Create Rules
 
-        public ICssRule CreateRule(ICssStyleSheet sheet, CssToken token)
+        public ICssRule CreateRule(ICssStyleSheet sheet, CssToken token) => CreateRule(sheet, token, inGroup: false);
+
+        /// <param name="sheet">The sheet the rule is being read for.</param>
+        /// <param name="token">The at-keyword the dispatch begins at.</param>
+        /// <param name="inGroup">
+        /// Whether the rule is being read inside a conditional group - <c>@media</c>, <c>@supports</c> or
+        /// any other block that holds rules. The at-rules that may only stand at the top of a sheet are
+        /// not rules of a group: the grammar has no place for them there, so one is not read at all. Read
+        /// anyway, a <c>@namespace</c> speaks for the sheet it stands in and the sheet it belongs to has
+        /// already been read past the point it may be declared - which is how one invalid rule inside a
+        /// <c>@supports</c> block came to cost the page its whole stylesheet (CSS Conditional 3 §3.1: an
+        /// invalid rule inside a conditional group is ignored, and the rest of the group still counts).
+        /// </param>
+        private ICssRule CreateRule(ICssStyleSheet sheet, CssToken token, Boolean inGroup)
         {
             switch (token.Type)
             {
                 case CssTokenType.AtKeyword:
-                    return CreateAtRule(sheet, token);
+                    return CreateAtRule(sheet, token, inGroup);
 
                 case CssTokenType.CurlyBracketOpen:
                     RaiseErrorOccurred(CssParseError.InvalidBlockStart, token.Position);
@@ -92,10 +105,19 @@ namespace AngleSharp.Css.Parser
             return CreateStyle(rule, token);
         }
 
-        private ICssRule CreateAtRule(ICssStyleSheet sheet, CssToken token)
+        private ICssRule CreateAtRule(ICssStyleSheet sheet, CssToken token, Boolean inGroup = false)
         {
             if (AtRuleMap.TryGetValue(token.Data, out var ruleId))
             {
+                // A namespace or a charset states something about the sheet, not about the block it is
+                // written in, and the grammar of either has it before every rule of that sheet.
+                if (inGroup && ruleId is 5 or 6)
+                {
+                    RaiseErrorOccurred(CssParseError.UnknownAtRule, token.Position);
+                    JumpToEnd(ref token);
+                    return null;
+                }
+
                 switch (ruleId)
                 {
                     case 1: return CreateMedia(new CssMediaRule(sheet), token);
@@ -656,7 +678,7 @@ namespace AngleSharp.Css.Parser
 
             while (token.IsNot(CssTokenType.EndOfFile, CssTokenType.CurlyBracketClose))
             {
-                var rule = CreateRule(group.Owner, token);
+                var rule = CreateRule(group.Owner, token, inGroup: true);
                 if (rule != null)
                 {
                     group.Add(rule);
