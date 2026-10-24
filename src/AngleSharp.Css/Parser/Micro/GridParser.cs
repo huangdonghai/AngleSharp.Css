@@ -24,7 +24,9 @@ namespace AngleSharp.Css.Parser
                 return new CssIdentifierValue(CssKeywords.None);
             }
 
-            var rows = source.ParseTrackList() ?? source.ParseAutoTrackList();
+            // A side of a template is a track list, or the subgrid keyword that says the tracks are
+            // the parent's (CSS Grid 2 §8.2).
+            var rows = source.ParseTrackList() ?? source.ParseAutoTrackList() ?? source.ParseSubgrid();
 
             if (rows != null)
             {
@@ -33,7 +35,7 @@ namespace AngleSharp.Css.Parser
                 if (c == Symbols.Solidus)
                 {
                     source.SkipCurrentAndSpaces();
-                    var cols = source.ParseTrackList() ?? source.ParseAutoTrackList();
+                    var cols = source.ParseTrackList() ?? source.ParseAutoTrackList() ?? source.ParseSubgrid();
 
                     if (cols != null)
                     {
