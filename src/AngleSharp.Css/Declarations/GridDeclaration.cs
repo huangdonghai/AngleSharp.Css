@@ -17,6 +17,11 @@ namespace AngleSharp.Css.Declarations
 
         public static readonly ICssValue InitialValue = null;
 
+        // The `grid` shorthand resets the three explicit-track properties and the three that control the
+        // implicit grid - and not the gutters between the tracks, which CSS Grid 2 §7.1 leaves out of its
+        // longhand list ("The grid shorthand also resets properties controlling the implicit grid"). A
+        // page that writes `gap: 20px; grid: subgrid / subgrid` keeps its 20px, which is what Chrome
+        // computes and what wpt's css-grid/subgrid/grid-gap-* pairs are drawn against.
         public static readonly String[] Longhands = new[]
         {
             PropertyNames.GridTemplateRows,
@@ -25,10 +30,6 @@ namespace AngleSharp.Css.Declarations
             PropertyNames.GridAutoRows,
             PropertyNames.GridAutoColumns,
             PropertyNames.GridAutoFlow,
-            PropertyNames.GridRowGap,
-            PropertyNames.GridColumnGap,
-            PropertyNames.RowGap,
-            PropertyNames.ColumnGap,
         };
 
         public static readonly PropertyFlags Flags = PropertyFlags.Shorthand;
@@ -126,8 +127,6 @@ namespace AngleSharp.Css.Declarations
                 var autoRows = values[3];
                 var autoColumns = values[4];
                 var autoFlow = values[5];
-                var rowGap = values[6];
-                var columnGap = values[7];
 
                 if (templateRows == templateColumns && templateRows == templateAreas)
                 {
@@ -158,10 +157,6 @@ namespace AngleSharp.Css.Declarations
                         null, //new Identifier(CssKeywords.Auto),
                         null, //new Identifier(CssKeywords.Auto),
                         null, //new Identifier(CssKeywords.Row),
-                        null, //Length.Zero,
-                        null, //Length.Zero,
-                        null, //new Identifier(CssKeywords.Normal),
-                        null, //new Identifier(CssKeywords.Normal),
                     };
                 }
                 else if (value is CssGridValue grid)
@@ -175,10 +170,6 @@ namespace AngleSharp.Css.Declarations
                         grid.Columns is not null ? new CssTupleValue(grid.Sizes) : null, //new Identifier(CssKeywords.Auto),
                         grid.Rows is not null ? new CssTupleValue(grid.Sizes) : null, //new Identifier(CssKeywords.Auto),
                         grid.IsDense ? new CssIdentifierValue(dense) : null,
-                        null, //Length.Zero,
-                        null, //Length.Zero,
-                        null, //new Identifier(CssKeywords.Normal),
-                        null, //new Identifier(CssKeywords.Normal),
                     };
                 }
                 else if (value is CssIdentifierValue)
@@ -191,10 +182,6 @@ namespace AngleSharp.Css.Declarations
                         null, //new Identifier(CssKeywords.Auto),
                         null, //new Identifier(CssKeywords.Auto),
                         null, //new Identifier(CssKeywords.Row),
-                        null, //Length.Zero,
-                        null, //Length.Zero,
-                        null, //new Identifier(CssKeywords.Normal),
-                        null, //new Identifier(CssKeywords.Normal),
                     };
                 }
 
