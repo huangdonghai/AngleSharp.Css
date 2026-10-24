@@ -965,7 +965,7 @@ namespace AngleSharp.Css.Parser
         /// </remarks>
         private String CreateValue(ref CssToken token, out Boolean important)
         {
-            var value = _tokenizer.ContentFrom(token.Position.Position);
+            var value = _tokenizer.ContentFrom(token.Position.Position, inValue: true);
             var end = TrimEnd(value, value.Length);
             var keyword = CssKeywords.Important;
             var at = end - keyword.Length;

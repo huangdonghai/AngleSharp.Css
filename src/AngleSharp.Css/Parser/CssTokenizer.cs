@@ -65,8 +65,13 @@ namespace AngleSharp.Css.Parser
         /// <summary>
         /// Gets the trimmed content until a '}' or ';' standing outside every group of the value is hit.
         /// </summary>
+        /// <param name="position">Where the content begins.</param>
+        /// <param name="inValue">
+        /// Whether the content is a declaration's value, where a brace opens a block that belongs to
+        /// the value rather than starting the rule's own block.
+        /// </param>
         /// <returns>The trimmed string.</returns>
-        public String ContentFrom(Int32 position)
+        public String ContentFrom(Int32 position, Boolean inValue = false)
         {
             var sb = StringBuilderPool.Obtain();
             Back(Position - position);
@@ -83,7 +88,12 @@ namespace AngleSharp.Css.Parser
 
             while (current != Symbols.EndOfFile)
             {
-                if (open == 0 && (current == Symbols.Semicolon || current == Symbols.CurlyBracketOpen || current == Symbols.CurlyBracketClose))
+                // A brace inside a value opens a block of the value itself, so the character that
+                // starts a rule's block elsewhere is a component value here (CSS Syntax 3 §5.4.1).
+                if (open == 0 &&
+                    (current == Symbols.Semicolon ||
+                     current == Symbols.CurlyBracketClose ||
+                     current == Symbols.CurlyBracketOpen && !inValue))
                 {
                     break;
                 }
