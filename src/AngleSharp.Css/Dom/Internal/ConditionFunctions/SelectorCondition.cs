@@ -23,7 +23,9 @@ namespace AngleSharp.Css.Dom
         public Boolean Check(IRenderDevice device) =>
             // The grammar of the condition takes a selector, not a list of them: `selector(div, div)` is
             // not a question a page may ask, and a parser that answers with a list answered something
-            // else (CSS Conditional 4 §3.1).
+            // else (CSS Conditional 4 §3.1). What the parser accepts is then the answer: a selector it
+            // reads is one this engine has a way to match, and the pseudo-elements it names are the
+            // parser's to know - the same set every rule of a page is read against.
             !HasTopLevelComma(_selector) &&
             _context?.GetService<ICssSelectorParser>()?.ParseSelector(_selector) is not null;
 
