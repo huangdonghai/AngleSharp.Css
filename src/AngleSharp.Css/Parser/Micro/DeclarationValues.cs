@@ -129,9 +129,11 @@ namespace AngleSharp.Css.Parser
                     }
 
                     // A variable reference carries a value of this production as its argument; any other
-                    // function's is a group of its own.
+                    // function's is a group of its own. Either way the function is a token of the value,
+                    // even one written with nothing inside it.
                     level++;
                     whole[level] = at - start == 3 && IsVar(text, start);
+                    tokens++;
                     at++;
                     continue;
                 }

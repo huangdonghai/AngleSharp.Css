@@ -328,8 +328,10 @@ namespace AngleSharp.Css.Dom
         {
             if (IsReadOnly)
                 throw new DomException(DomError.NoModificationAllowed);
-            
-            if (!String.IsNullOrEmpty(propertyValue))
+
+            // A custom property given nothing holds the empty token list, which is a value like any
+            // other; any other property given nothing is being reset (CSS Variables 1 §3).
+            if (!String.IsNullOrEmpty(propertyValue) || propertyName.StartsWith("--", StringComparison.Ordinal))
             {
                 if (priority is null || priority.Isi(CssKeywords.Important))
                 {

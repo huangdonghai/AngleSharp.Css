@@ -782,10 +782,16 @@ namespace AngleSharp.Css.Parser
                 if (token.Type == CssTokenType.Colon)
                 {
                     token = NextToken();
-                    CollectTrivia(owner, ref token);
+                    CollectValueLead(owner, ref token);
                     var value = CreateValue(ref token, out var important);
 
-                    if (String.IsNullOrEmpty(value))
+                    // A declaration's value is a list of component values that holds nothing a
+                    // semicolon or a bang would have ended it at, and a custom property reads that
+                    // production as its whole grammar - which is the one thing that lets its value be
+                    // nothing at all (CSS Syntax 3 §5.4.3, CSS Variables 1 §3, §3.1).
+                    var stated = value.IsDeclarationValue(allowEmpty: name.StartsWith("--", StringComparison.Ordinal));
+
+                    if (!stated)
                     {
                         RaiseErrorOccurred(CssParseError.ValueMissing, token.Position);
                     }
@@ -900,6 +906,27 @@ namespace AngleSharp.Css.Parser
         private void CollectTrivia(ICssStyleSheet owner, ref CssToken token)
         {
             while (token.Type == CssTokenType.Whitespace || token.Type == CssTokenType.Comment || token.Type == CssTokenType.Cdc || token.Type == CssTokenType.Cdo)
+            {
+                if (token.Type == CssTokenType.Comment)
+                {
+                    _commentRuleTarget?.Add(new CssCommentRule(owner, token.Data));
+                }
+
+                token = _tokenizer.Get();
+            }
+        }
+
+        /// <summary>
+        /// Takes the white space and the comment in front of a declaration's value, and nothing else.
+        /// </summary>
+        /// <remarks>
+        /// Between declarations a comment-open or a comment-close is the token that ends a statement
+        /// list, so <see cref="CollectTrivia" /> steps over it; inside one it is a component value of
+        /// the value itself, and the value begins where it stands (CSS Syntax 3 §5.4.3).
+        /// </remarks>
+        private void CollectValueLead(ICssStyleSheet owner, ref CssToken token)
+        {
+            while (token.Type == CssTokenType.Whitespace || token.Type == CssTokenType.Comment)
             {
                 if (token.Type == CssTokenType.Comment)
                 {
