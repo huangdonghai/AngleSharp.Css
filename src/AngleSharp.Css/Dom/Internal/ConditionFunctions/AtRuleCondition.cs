@@ -32,13 +32,12 @@
         private static String Unescape(String argument)
         {
             var text = argument.Trim();
+            var sigil = text.StartsWith("@", StringComparison.Ordinal);
+            var ident = sigil ? text.Substring(1) : text;
+            var name = new StringSource(ident).ParseIdent() ?? ident;
 
-            if (text.StartsWith("@", StringComparison.Ordinal))
-            {
-                text = text.Substring(1);
-            }
-
-            return new StringSource(text).ParseIdent() ?? text;
+            // The rule map is keyed by the at-keyword the tokenizer hands over, which keeps its `@`.
+            return sigil ? "@" + name : name;
         }
     }
 }
