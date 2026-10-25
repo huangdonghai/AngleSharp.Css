@@ -12,6 +12,7 @@ namespace AngleSharp.Css.Declarations
         public static String[] Shorthands = new[]
         {
             PropertyNames.ColumnRule,
+            PropertyNames.Rule,
         };
 
         public static IValueConverter Converter = GapRuleList(LineStyleConverter);

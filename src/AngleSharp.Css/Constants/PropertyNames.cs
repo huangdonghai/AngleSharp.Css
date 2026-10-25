@@ -663,6 +663,11 @@ namespace AngleSharp.Css
         public static readonly String RowRuleInset = "row-rule-inset";
 
         /// <summary>
+        /// The rule declaration.
+        /// </summary>
+        public static readonly String Rule = "rule";
+
+        /// <summary>
         /// The rule-inset declaration.
         /// </summary>
         public static readonly String RuleInset = "rule-inset";

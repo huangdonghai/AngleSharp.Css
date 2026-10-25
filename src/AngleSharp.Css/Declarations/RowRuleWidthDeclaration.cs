@@ -12,6 +12,7 @@ namespace AngleSharp.Css.Declarations
         public static String[] Shorthands = new[]
         {
             PropertyNames.RowRule,
+            PropertyNames.Rule,
         };
 
         // css-gaps-1 §4.3: one decoration per row gap, so the value is a list.

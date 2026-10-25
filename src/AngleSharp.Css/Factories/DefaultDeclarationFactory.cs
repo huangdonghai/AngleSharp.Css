@@ -2083,6 +2083,14 @@ namespace AngleSharp.Css
                     longhands: RowRuleDeclaration.Longhands)
             },
             {
+                RuleDeclaration.Name, new DeclarationInfo(
+                    name: RuleDeclaration.Name,
+                    converter: RuleDeclaration.Converter,
+                    initialValue: RuleDeclaration.InitialValue,
+                    flags: RuleDeclaration.Flags,
+                    longhands: RuleDeclaration.Longhands)
+            },
+            {
                 RuleBreakDeclaration.Name, new DeclarationInfo(
                     name: RuleBreakDeclaration.Name,
                     converter: RuleBreakDeclaration.Converter,

@@ -12,6 +12,7 @@ namespace AngleSharp.Css.Declarations
         public static String[] Shorthands = new[]
         {
             PropertyNames.ColumnRule,
+            PropertyNames.Rule,
         };
 
         // CSS Gap Decorations takes a comma-separated list, one decoration per gap (css-gaps-1 §4.3,
