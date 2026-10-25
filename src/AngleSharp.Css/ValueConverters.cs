@@ -1275,7 +1275,8 @@ namespace AngleSharp.Css
 		/// </summary>
         public static readonly IValueConverter WordBreakConverter = Or(
             Map.WordBreaks.ToConverter(),
-            Assign(CssKeywords.BreakWord, CssKeywords.BreakWord));
+            Assign(CssKeywords.BreakWord, CssKeywords.BreakWord),
+            Assign("auto-phrase", "auto-phrase"));
 
 		/// <summary>
 		/// Represents a converter for the OverflowWrap enumeration.
