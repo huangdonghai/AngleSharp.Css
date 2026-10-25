@@ -8,7 +8,7 @@ namespace AngleSharp.Css.Declarations
     {
         public static String Name = PropertyNames.WordSpacing;
 
-        public static IValueConverter Converter = OptionalLengthConverter;
+        public static IValueConverter Converter = OptionalLengthOrPercentConverter;
 
         public static ICssValue InitialValue = InitialValues.WordSpacingDecl;
 
