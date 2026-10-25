@@ -1,4 +1,4 @@
-#nullable disable
+﻿#nullable disable
 namespace AngleSharp.Css
 {
     using AngleSharp.Css.Converters;
@@ -697,10 +697,13 @@ namespace AngleSharp.Css
             Assign(CssKeywords.None, CssKeywords.None),
             Assign(CssKeywords.Strict, CssKeywords.Strict),
             Assign(CssKeywords.Content, CssKeywords.Content),
-            Assign(CssKeywords.Layout, CssKeywords.Layout),
-            Assign(CssKeywords.Style, CssKeywords.Style),
-            Assign(CssKeywords.Paint, CssKeywords.Paint),
-            Assign(CssKeywords.Size, CssKeywords.Size));
+            Or(
+                Assign(CssKeywords.Layout, CssKeywords.Layout),
+                Assign(CssKeywords.Style, CssKeywords.Style),
+                Assign(CssKeywords.Paint, CssKeywords.Paint),
+                Assign(CssKeywords.Size, CssKeywords.Size),
+                Assign(CssKeywords.InlineSize, CssKeywords.InlineSize),
+                Assign("block-size", "block-size")).Many(1, 6));
 
         /// <summary>
         /// Represents a converter for the contain-intrinsic-size property.
