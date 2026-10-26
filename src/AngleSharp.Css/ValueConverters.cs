@@ -1584,7 +1584,11 @@ namespace AngleSharp.Css
         /// Represents a converter for the overflow-clip-margin property (&lt;visual-box&gt; || &lt;length&gt;).
         /// https://developer.mozilla.org/en-US/docs/Web/CSS/overflow-clip-margin
         /// </summary>
-        public static readonly IValueConverter OverflowClipMarginConverter = Or(LengthOrPercentConverter, BoxModelConverter);
+        // The property takes a visual-box keyword and a distance in either order, which the pair of
+        // converters this used to be could not express: a keyword alone and a keyword followed by a
+        // length were both rejected, so a page that wrote either lost the declaration before Hutu
+        // could read it. The engine parses the value itself, so the declaration only has to survive.
+        public static readonly IValueConverter OverflowClipMarginConverter = Any;
 
         /// <summary>
         /// Represents multiple shadow objects.
