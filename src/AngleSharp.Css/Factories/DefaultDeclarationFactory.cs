@@ -733,6 +733,13 @@ namespace AngleSharp.Css
                     flags: ScrollMarkerGroupDeclaration.Flags)
             },
             {
+                CornerShapeDeclaration.Name, new DeclarationInfo(
+                    name: CornerShapeDeclaration.Name,
+                    converter: CornerShapeDeclaration.Converter,
+                    initialValue: CornerShapeDeclaration.InitialValue,
+                    flags: CornerShapeDeclaration.Flags)
+            },
+            {
                 OverflowAnchorDeclaration.Name, new DeclarationInfo(
                     name: OverflowAnchorDeclaration.Name,
                     converter: OverflowAnchorDeclaration.Converter,

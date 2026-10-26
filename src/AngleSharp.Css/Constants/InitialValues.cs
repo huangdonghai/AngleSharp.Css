@@ -184,6 +184,12 @@ namespace AngleSharp.Css
         /// </summary>
         public static readonly ICssValue ScrollMarkerGroupDecl =
             new CssConstantValue<String>(CssKeywords.None, CssKeywords.None);
+
+        /// <summary>
+        /// The initial <c>corner-shape</c> value, <c>round</c>.
+        /// </summary>
+        public static readonly ICssValue CornerShapeDecl =
+            new CssConstantValue<String>("round", "round");
         public static readonly ICssValue OverflowAnchorDecl = new CssConstantValue<CssLengthValue>(CssKeywords.Auto, CssLengthValue.Auto);
         public static readonly ICssValue MarginBlockEndDecl = CssLengthValue.Zero;
         public static readonly ICssValue MarginBlockStartDecl = CssLengthValue.Zero;

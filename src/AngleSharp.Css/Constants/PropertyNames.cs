@@ -238,6 +238,11 @@ namespace AngleSharp.Css
         public static readonly String BorderRadius = "border-radius";
 
         /// <summary>
+        /// The corner-shape declaration.
+        /// </summary>
+        public static readonly String CornerShape = "corner-shape";
+
+        /// <summary>
         /// The border-top-left-radius declaration.
         /// </summary>
         public static readonly String BorderTopLeftRadius = "border-top-left-radius";
