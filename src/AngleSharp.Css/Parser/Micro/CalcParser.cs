@@ -84,7 +84,7 @@ namespace AngleSharp.Css.Parser
                     {
                         source.SkipCurrentAndSpaces();
 
-                        if (arguments.Count > 0)
+                        if (arguments.Count > 0 && TakesOneType(arguments))
                         {
                             return new CssMathFunctionValue(name, arguments.ToArray());
                         }
@@ -183,6 +183,33 @@ namespace AngleSharp.Css.Parser
             return source.ParseAtomicExpression();
         }
         
+        /// <summary>
+        /// Checks whether the arguments of a math function all answer the same kind of value. A plain
+        /// number among lengths or percentages is no answer at all: CSS Values and Units 4 section
+        /// 10.1 gives a min(), max() or clamp() one type, taken from its arguments, and a number is
+        /// neither a length nor a share of one - not even a zero of one.
+        /// </summary>
+        private static Boolean TakesOneType(List<ICssValue> arguments)
+        {
+            var numbers = -1;
+
+            for (var index = 0; index < arguments.Count; index++)
+            {
+                var number = arguments[index] is CssLengthValue length && length.Type == CssLengthValue.Unit.None;
+
+                if (numbers < 0)
+                {
+                    numbers = number ? 1 : 0;
+                }
+                else if ((number ? 1 : 0) != numbers)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Parses a unit value into a ICssValue.
         /// </summary>
