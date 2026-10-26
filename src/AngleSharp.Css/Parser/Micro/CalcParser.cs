@@ -5,6 +5,7 @@ namespace AngleSharp.Css.Parser
     using AngleSharp.Css.Values;
     using AngleSharp.Text;
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
 
     /// <summary>
@@ -12,6 +13,10 @@ namespace AngleSharp.Css.Parser
     /// </summary>
     public static class CalcParser
     {
+        /// <summary>
+        /// The functions that take a list of sums and answer the least or the greatest of them.
+        /// </summary>
+        private static readonly String[] MathFunctions = new[] { "min", "max", "clamp" };
         /// <summary>
         /// Parses a calc value, if any.
         /// </summary>
@@ -26,6 +31,68 @@ namespace AngleSharp.Css.Parser
                 if (expression != null)
                 {
                     return new CssCalcValue(expression);
+                }
+            }
+            else if (source.ParseMathFunction() is { } math)
+            {
+                // The math functions are arithmetic of the same kind, so they ride the calc converter:
+                // every property that takes a calc takes min(), max() and clamp() with it. The value
+                // keeps its own name when it is written back, so `height: max(100px, 50px)` reads as
+                // that rather than as a calc of it.
+                return new CssCalcValue(math);
+            }
+
+            source.BackTo(pos);
+            return null;
+        }
+
+        /// <summary>
+        /// Parses a min(), max() or clamp() call, if any. Each argument is a sum of the shape a calc
+        /// expression takes, since the parentheses around a calc are left out inside a math function.
+        /// </summary>
+        public static ICssValue ParseMathFunction(this StringSource source)
+        {
+            var pos = source.Index;
+
+            foreach (var name in MathFunctions)
+            {
+                if (!source.IsFunction(name))
+                {
+                    continue;
+                }
+
+                var arguments = new List<ICssValue>();
+
+                while (true)
+                {
+                    var argument = source.ParseAddExpression();
+
+                    if (argument == null)
+                    {
+                        break;
+                    }
+
+                    arguments.Add(argument);
+
+                    if (source.Current == Symbols.Comma)
+                    {
+                        source.SkipCurrentAndSpaces();
+                        continue;
+                    }
+
+                    if (source.Current == Symbols.RoundBracketClose)
+                    {
+                        source.SkipCurrentAndSpaces();
+
+                        if (arguments.Count > 0)
+                        {
+                            return new CssMathFunctionValue(name, arguments.ToArray());
+                        }
+
+                        break;
+                    }
+
+                    break;
                 }
             }
 
@@ -104,6 +171,13 @@ namespace AngleSharp.Css.Parser
             {
                 var content = source.ParseExpression();
                 return new CssCalcBracketExpression(content);
+            }
+
+            var math = source.ParseMathFunction();
+
+            if (math != null)
+            {
+                return math;
             }
 
             return source.ParseAtomicExpression();

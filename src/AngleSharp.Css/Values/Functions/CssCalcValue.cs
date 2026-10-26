@@ -52,9 +52,12 @@ namespace AngleSharp.Css.Values
         public ICssValue Expression => _expression;
 
         /// <summary>
-        /// Gets the CSS text representation.
+        /// Gets the CSS text representation. A math function stands for itself: the page wrote
+        /// max(100px, 50px), not a calc of it, and a reader of the value must see what was written.
         /// </summary>
-        public String CssText => Name.CssFunction(_expression.CssText);
+        public String CssText => _expression is CssMathFunctionValue
+            ? _expression.CssText
+            : Name.CssFunction(_expression.CssText);
 
         #endregion
 
