@@ -726,6 +726,13 @@ namespace AngleSharp.Css
                     flags: OverflowClipMarginDeclaration.Flags)
             },
             {
+                ScrollMarkerGroupDeclaration.Name, new DeclarationInfo(
+                    name: ScrollMarkerGroupDeclaration.Name,
+                    converter: ScrollMarkerGroupDeclaration.Converter,
+                    initialValue: ScrollMarkerGroupDeclaration.InitialValue,
+                    flags: ScrollMarkerGroupDeclaration.Flags)
+            },
+            {
                 OverflowAnchorDeclaration.Name, new DeclarationInfo(
                     name: OverflowAnchorDeclaration.Name,
                     converter: OverflowAnchorDeclaration.Converter,

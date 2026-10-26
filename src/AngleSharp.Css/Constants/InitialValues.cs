@@ -178,6 +178,12 @@ namespace AngleSharp.Css
         public static readonly ICssValue MinInlineSizeDecl = new CssConstantValue<CssLengthValue>(CssKeywords.Auto, CssLengthValue.Auto);
         public static readonly ICssValue MaxInlineSizeDecl = new CssConstantValue<Object>(CssKeywords.None, null);
         public static readonly ICssValue OverflowClipMarginDecl = CssLengthValue.Zero;
+
+        /// <summary>
+        /// The initial <c>scroll-marker-group</c> value, <c>none</c>.
+        /// </summary>
+        public static readonly ICssValue ScrollMarkerGroupDecl =
+            new CssConstantValue<String>(CssKeywords.None, CssKeywords.None);
         public static readonly ICssValue OverflowAnchorDecl = new CssConstantValue<CssLengthValue>(CssKeywords.Auto, CssLengthValue.Auto);
         public static readonly ICssValue MarginBlockEndDecl = CssLengthValue.Zero;
         public static readonly ICssValue MarginBlockStartDecl = CssLengthValue.Zero;

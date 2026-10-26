@@ -1668,6 +1668,11 @@ namespace AngleSharp.Css
         public static readonly String OverflowClipMargin = "overflow-clip-margin";
 
         /// <summary>
+        /// The scroll-marker-group declaration.
+        /// </summary>
+        public static readonly String ScrollMarkerGroup = "scroll-marker-group";
+
+        /// <summary>
         /// The overflow-anchor declaration.
         /// </summary>
         public static readonly String OverflowAnchor = "overflow-anchor";
