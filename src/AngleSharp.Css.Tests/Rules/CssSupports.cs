@@ -368,9 +368,38 @@ namespace AngleSharp.Css.Tests.Rules
         [Test]
         public void SupportsNegationNeedsWhitespaceBeforeItsCondition()
         {
-            // Conditional 3 3 asks for `not` and then whitespace; `not(` is a function token, and the
-            // condition as a whole is then neither a negation nor a declaration, so the rule is dropped.
-            Assert.IsNull(ParseRule(@"@supports (not(foo: baz)) { p { color: green; } }"));
+            // Conditional 4 3.1 makes `not(` a function token, so what stands where the condition was
+            // asked for is a <general-enclosed> form: a condition the engine reads and answers false,
+            // not one it cannot read at all. Measured against Chrome, where
+            // CSS.supports('(not(foo: baz))') is false while CSS.supports('not (not(foo: baz))') is
+            // true - the rule stands and only its block sleeps.
+            Assert.IsFalse(Check(@"@supports (not(foo: baz)) { p { color: green; } }"));
+            Assert.IsTrue(Check(@"@supports not (not(foo: baz)) { p { color: green; } }"));
+        }
+
+        [Test]
+        public void SupportsUnknownFunctionIsFalseRatherThanUnreadable()
+        {
+            // A function the condition grammar does not know is a <general-enclosed> form, and that
+            // form is false - so turning it around is true (CSS Conditional 4 §3.1).
+            Assert.IsFalse(Check(@"@supports unknown() { p { color: green; } }"));
+            Assert.IsTrue(Check(@"@supports not unknown() { p { color: green; } }"));
+            Assert.IsTrue(Check(@"@supports (not (unknown(with stuff))) { p { color: green; } }"));
+        }
+
+        [Test]
+        public void SupportsFontFormatAndFontTechAnswerForNamesTheEngineReads()
+        {
+            // The two functions ask for one name: a known format or technology is supported, and a
+            // quoted string, a list or an unknown name is not (CSS Conditional 4 §3.1).
+            Assert.IsTrue(Check(@"@supports font-format(opentype) { p { color: green; } }"));
+            Assert.IsTrue(Check(@"@supports font-format(Woff) { p { color: green; } }"));
+            Assert.IsTrue(Check(@"@supports font-tech(features-opentype) { p { color: green; } }"));
+            Assert.IsTrue(Check(@"@supports font-tech(color-COLRv0) { p { color: green; } }"));
+            Assert.IsFalse(Check(@"@supports font-format(xyzzy) { p { color: green; } }"));
+            Assert.IsFalse(Check(@"@supports font-format(""opentype"") { p { color: green; } }"));
+            Assert.IsFalse(Check(@"@supports font-format(truetype, opentype) { p { color: green; } }"));
+            Assert.IsFalse(Check(@"@supports font-tech() { p { color: green; } }"));
         }
 
         // A condition that cannot be read at all leaves no rule behind, which is the same answer to the

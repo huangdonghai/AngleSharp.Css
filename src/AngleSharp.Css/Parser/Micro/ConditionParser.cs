@@ -58,7 +58,9 @@ namespace AngleSharp.Css.Parser
             var pos = source.Index;
             var ident = source.ParseIdent();
 
-            if (ident != null)
+            // `and(` and `or(` are function tokens, not the keywords: the bracket follows the name at
+            // once, and a condition that writes one is a `<general-enclosed>` form (CSS Syntax 3 §4.3.9).
+            if (ident != null && source.Current != Symbols.RoundBracketOpen)
             {
                 var isAnd = ident.Isi(CssKeywords.And);
                 var isOr = ident.Isi(CssKeywords.Or);
@@ -103,7 +105,43 @@ namespace AngleSharp.Css.Parser
                 return selector.Length > 0 ? new SelectorCondition(context, selector) : null;
             }
 
-            return null;
+            if (source.IsFunction("font-format"))
+            {
+                return new FontCondition("font-format", source.FunctionArgument());
+            }
+
+            if (source.IsFunction("font-tech"))
+            {
+                return new FontCondition("font-tech", source.FunctionArgument());
+            }
+
+            // Any other function is a <general-enclosed> form: it is false, not unreadable, which is
+            // what makes `@supports not unknown()` a condition the page's rules may stand on
+            // (CSS Conditional 4 §3.1).
+            var functionName = source.ParseFunctionName();
+
+            if (functionName is null)
+            {
+                return null;
+            }
+
+            var argument = source.FunctionArgument();
+            return new FalseCondition(functionName + "(" + argument + ")");
+        }
+
+        /// <summary>Reads the name of a function token, leaving the bracket to the caller.</summary>
+        private static String ParseFunctionName(this StringSource source)
+        {
+            var pos = source.Index;
+            var name = source.ParseIdent();
+
+            if (name is null || source.Current != Symbols.RoundBracketOpen)
+            {
+                source.BackTo(pos);
+                return null;
+            }
+
+            return name;
         }
 
         /// <summary>Reads the text of a function's argument, up to the bracket that closes it.</summary>
@@ -184,6 +222,11 @@ namespace AngleSharp.Css.Parser
                 conditions.Add(condition);
                 source.SkipSpacesAndComments();
                 ident = source.ParseIdent();
+
+                if (ident != null && source.Current == Symbols.RoundBracketOpen)
+                {
+                    ident = null;
+                }
             }
             while (ident != null && ident.Isi(keyword));
 

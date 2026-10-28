@@ -29,6 +29,121 @@ namespace AngleSharp.Css.Dom
             !HasTopLevelComma(_selector) &&
             _context?.GetService<ICssSelectorParser>()?.ParseSelector(_selector) is not null;
 
+        /// <summary>
+        /// Gets whether every pseudo-class and pseudo-element the selector names is one the engine
+        /// knows. The parser drops what it cannot read from a forgiving list - `:is(:foo, .a)` matches
+        /// `.a` - but the condition asks about the whole selector, and a name the engine does not know
+        /// is not one it can read (CSS Conditional 4 §3.1, measured against Chrome).
+        /// </summary>
+        private Boolean NamesOnlyKnownPseudo()
+        {
+            for (var i = 0; i < _selector.Length; i++)
+            {
+                var c = _selector[i];
+
+                if (c is '"' or '\'')
+                {
+                    i = SkipString(i);
+                    continue;
+                }
+
+                if (c == '[')
+                {
+                    i = SkipAttribute(i);
+                    continue;
+                }
+
+                if (c != ':')
+                {
+                    continue;
+                }
+
+                var at = i + 1;
+                var element = at < _selector.Length && _selector[at] == ':';
+
+                if (element)
+                {
+                    at++;
+                }
+
+                var start = at;
+
+                while (at < _selector.Length &&
+                    (Char.IsLetterOrDigit(_selector[at]) || _selector[at] is '-' or '_'))
+                {
+                    at++;
+                }
+
+                if (at == start)
+                {
+                    continue;
+                }
+
+                var name = _selector.Substring(start, at - start);
+                var classes = _context?.GetService<IPseudoClassSelectorFactory>();
+                var elements = _context?.GetService<IPseudoElementSelectorFactory>();
+                var known = !element && classes?.Create(name) is { } pseudoClass
+                    ? pseudoClass
+                    : elements?.Create(name);
+
+                // A vendor pseudo-element may be written with one colon, so a name that starts with a
+                // dash is asked of the pseudo-element factory as well.
+                if (known is null && !element && name.StartsWith("-", StringComparison.Ordinal))
+                {
+                    known = elements?.Create(name);
+                }
+
+                if (known is null)
+                {
+                    return false;
+                }
+
+                i = at - 1;
+            }
+
+            return true;
+        }
+
+        /// <summary>Steps past a quoted run, returning the index of its closing quote.</summary>
+        private Int32 SkipString(Int32 at)
+        {
+            var quote = _selector[at];
+
+            for (at++; at < _selector.Length; at++)
+            {
+                if (_selector[at] == '\\')
+                {
+                    at++;
+                    continue;
+                }
+
+                if (_selector[at] == quote)
+                {
+                    return at;
+                }
+            }
+
+            return _selector.Length;
+        }
+
+        /// <summary>Steps past an attribute selector, quotes included.</summary>
+        private Int32 SkipAttribute(Int32 at)
+        {
+            for (at++; at < _selector.Length; at++)
+            {
+                if (_selector[at] is '"' or '\'')
+                {
+                    at = SkipString(at);
+                }
+                else if (_selector[at] == ']')
+                {
+                    return at;
+                }
+            }
+
+            return _selector.Length;
+        }
+
         /// <summary>Gets whether a comma stands outside every bracket, which makes the argument a list.</summary>
         private static Boolean HasTopLevelComma(String selector)
         {
