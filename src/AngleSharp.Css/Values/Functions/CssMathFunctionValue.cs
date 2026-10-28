@@ -83,11 +83,18 @@ namespace AngleSharp.Css.Values
 
             if (_name.Equals("clamp", StringComparison.OrdinalIgnoreCase))
             {
-                return computed.Length != 3
-                    ? this
-                    : new CssLengthValue(
-                        Math.Clamp(computed[1].Value, computed[0].Value, computed[2].Value),
-                        computed[0].Type);
+                if (computed.Length != 3)
+                {
+                    return this;
+                }
+
+                var clamped = computed[1].Value;
+                var clampMin = computed[0].Value;
+                var clampMax = computed[2].Value;
+
+                clamped = clamped < clampMin ? clampMin : (clamped > clampMax ? clampMax : clamped);
+
+                return new CssLengthValue(clamped, computed[0].Type);
             }
 
             var smallest = _name.Equals("min", StringComparison.OrdinalIgnoreCase);
