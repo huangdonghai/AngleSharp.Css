@@ -297,7 +297,7 @@ namespace AngleSharp.Css.Parser
         {
             var token = NextToken();
             CollectTrivia(rule.Owner, ref token);
-            rule.Prefix = GetRuleName(ref token);
+            var prefix = GetRuleName(ref token);
             CollectTrivia(rule.Owner, ref token);
 
             if (!token.Is(CssTokenType.String, CssTokenType.Url))
@@ -307,9 +307,44 @@ namespace AngleSharp.Css.Parser
                 return null;
             }
 
-            rule.NamespaceUri = token.Data;
+            var uri = token.Data;
             JumpToEnd(ref token);
+
+            // A namespace stated after the sheet has left the prologue is invalid and ignored, and the
+            // rules written after it still count (CSS Namespaces 3 §3). Asking the rule to hold a prefix
+            // there throws, which used to abandon the rest of the sheet - a page that put a namespace in
+            // the wrong place lost every rule behind it.
+            if (!CanStillDeclareNamespaces(rule.Owner))
+            {
+                RaiseErrorOccurred(CssParseError.InvalidToken, token.Position);
+                return null;
+            }
+
+            rule.Prefix = prefix;
+            rule.NamespaceUri = uri;
             return rule;
+        }
+
+        /// <summary>
+        /// Gets whether a sheet's prologue still stands where a namespace may be declared: nothing but
+        /// <c>@charset</c>, <c>@import</c> and <c>@namespace</c> may have been read before it.
+        /// </summary>
+        private static Boolean CanStillDeclareNamespaces(ICssStyleSheet sheet)
+        {
+            if (sheet?.Rules is not { } rules)
+            {
+                return true;
+            }
+
+            foreach (var rule in rules)
+            {
+                if (rule.Type is not (CssRuleType.Charset or CssRuleType.Import or CssRuleType.Namespace))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private CssPageRule CreatePage(CssPageRule rule, CssToken current)
