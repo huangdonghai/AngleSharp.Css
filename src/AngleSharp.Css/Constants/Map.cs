@@ -832,6 +832,7 @@ namespace AngleSharp.Css
             { CssKeywords.End, RubyOverhangMode.End },
             { CssKeywords.None, RubyOverhangMode.None },
             { CssKeywords.Start, RubyOverhangMode.Start },
+            { "spaces", RubyOverhangMode.Spaces },
         };
 
         /// <summary>

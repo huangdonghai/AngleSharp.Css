@@ -18,6 +18,11 @@ namespace AngleSharp.Css.Dom
         /// </summary>
         Start,
         /// <summary>
+        /// Only over adjacent spaces.
+        /// </summary>
+        Spaces,
+
+        /// <summary>
         /// Only in the end.
         /// </summary>
         End,
