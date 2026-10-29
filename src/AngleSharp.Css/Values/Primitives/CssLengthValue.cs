@@ -157,6 +157,7 @@ namespace AngleSharp.Css.Values
                     Unit.Pt => UnitNames.Pt,
                     Unit.Pc => UnitNames.Pc,
                     Unit.Ch => UnitNames.Ch,
+                    Unit.Ic => UnitNames.Ic,
                     Unit.Rem => UnitNames.Rem,
                     Unit.Vw => UnitNames.Vw,
                     Unit.Vh => UnitNames.Vh,
@@ -276,6 +277,7 @@ namespace AngleSharp.Css.Values
             return s switch
             {
                 "ch" => Unit.Ch,
+                "ic" => Unit.Ic,
                 "cm" => Unit.Cm,
                 "em" => Unit.Em,
                 "ex" => Unit.Ex,
@@ -342,6 +344,11 @@ namespace AngleSharp.Css.Values
                     // does not expose, so the conventional half em stands in for both.
                     CheckForValidRenderDimensionsForFont(renderDimensions);
                     return _value * renderDimensions.FontSize * 0.5;
+                case Unit.Ic:
+                    // The advance of a typical ideograph is an em, which is what a device with no
+                    // face to measure has to stand in for.
+                    CheckForValidRenderDimensionsForFont(renderDimensions);
+                    return _value * renderDimensions.FontSize;
                 case Unit.Vh:
                     CheckForValidRenderDimensions(renderDimensions, RenderMode.Vertical);
                     return _value * 0.01 * renderDimensions.RenderHeight;
@@ -482,6 +489,10 @@ namespace AngleSharp.Css.Values
             /// The value is a length (width of the 0-character).
             /// </summary>
             Ch,
+            /// <summary>
+            /// The value is a length (advance of a typical ideograph).
+            /// </summary>
+            Ic,
             /// <summary>
             /// The value is the relative to the font-size of the root element (in em).
             /// </summary>

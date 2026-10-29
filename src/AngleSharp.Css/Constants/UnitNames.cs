@@ -83,6 +83,11 @@ namespace AngleSharp.Css
         public static readonly String Ch = "ch";
 
         /// <summary>
+        /// Ideographic characters.
+        /// </summary>
+        public static readonly String Ic = "ic";
+
+        /// <summary>
         /// Viewport-Width.
         /// </summary>
         public static readonly String Vw = "vw";
