@@ -16,6 +16,7 @@ namespace AngleSharp.Css.Dom
 
         private readonly CssStyleDeclaration _style;
         private ISelector _selector;
+        private String _selectorText;
 
         #endregion
 
@@ -33,8 +34,15 @@ namespace AngleSharp.Css.Dom
 
         public String SelectorText
         {
-            get => _selector?.Text;
-            set { _selector = ParseSelector(value); }
+            // A page selector is not an element selector: `:first`, `:left` and the page names are
+            // read by a page box, and the element parser refuses them. The text the page wrote is
+            // kept so the reader that does know page selectors can still see it.
+            get => _selectorText ?? _selector?.Text;
+            set
+            {
+                _selectorText = value;
+                _selector = ParseSelector(value);
+            }
         }
 
         public ISelector Selector => _selector;
