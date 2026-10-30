@@ -376,6 +376,8 @@ namespace AngleSharp.Css
         public static readonly ICssValue AlignmentBaselineDecl = new CssIdentifierValue("baseline");
         public static readonly ICssValue ColorInterpolationFiltersDecl = new CssIdentifierValue("linearRGB");
         public static readonly ICssValue TextDecorationThicknessDecl = new CssIdentifierValue(CssKeywords.Auto);
+        public static readonly ICssValue TextSpacingTrimDecl = new CssIdentifierValue(CssKeywords.Normal);
+        public static readonly ICssValue TextAutospaceDecl = new CssIdentifierValue(CssKeywords.Normal);
         public static readonly ICssValue TextDecorationSkipInkDecl = new CssIdentifierValue(CssKeywords.Auto);
         public static readonly ICssValue TextWrapDecl = new CssIdentifierValue(CssKeywords.Wrap);
         public static readonly ICssValue TextWrapModeDecl = new CssIdentifierValue(CssKeywords.Wrap);
