@@ -3445,6 +3445,30 @@ namespace AngleSharp.Css
                     flags: HangingPunctuationDeclaration.Flags)
             },
             {
+                TextSpacingTrimDeclaration.Name, new DeclarationInfo(
+                    name: TextSpacingTrimDeclaration.Name,
+                    converter: TextSpacingTrimDeclaration.Converter,
+                    initialValue: TextSpacingTrimDeclaration.InitialValue,
+                    flags: TextSpacingTrimDeclaration.Flags,
+                    shorthands: TextSpacingTrimDeclaration.Shorthands)
+            },
+            {
+                TextAutospaceDeclaration.Name, new DeclarationInfo(
+                    name: TextAutospaceDeclaration.Name,
+                    converter: TextAutospaceDeclaration.Converter,
+                    initialValue: TextAutospaceDeclaration.InitialValue,
+                    flags: TextAutospaceDeclaration.Flags,
+                    shorthands: TextAutospaceDeclaration.Shorthands)
+            },
+            {
+                TextSpacingDeclaration.Name, new DeclarationInfo(
+                    name: TextSpacingDeclaration.Name,
+                    converter: TextSpacingDeclaration.Converter,
+                    initialValue: TextSpacingDeclaration.InitialValue,
+                    flags: TextSpacingDeclaration.Flags,
+                    longhands: TextSpacingDeclaration.Longhands)
+            },
+            {
                 MaskImageDeclaration.Name, new DeclarationInfo(
                     name: MaskImageDeclaration.Name,
                     converter: MaskImageDeclaration.Converter,

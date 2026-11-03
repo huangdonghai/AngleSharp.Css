@@ -2168,6 +2168,16 @@ namespace AngleSharp.Css
         public static readonly String TextAutospace = "text-autospace";
 
         /// <summary>
+        /// The text-spacing declaration.
+        /// </summary>
+        public static readonly String TextSpacing = "text-spacing";
+
+        /// <summary>
+        /// The text-spacing-trim declaration.
+        /// </summary>
+        public static readonly String TextSpacingTrim = "text-spacing-trim";
+
+        /// <summary>
         /// The text-decoration declaration.
         /// </summary>
         public static readonly String TextDecoration = "text-decoration";

@@ -1,4 +1,4 @@
-﻿#nullable disable
+#nullable disable
 namespace AngleSharp.Css
 {
     using AngleSharp.Css.Converters;
@@ -488,6 +488,33 @@ namespace AngleSharp.Css
             Assign(CssKeywords.Auto, CssKeywords.Auto),
             Assign(CssKeywords.All, CssKeywords.All),
             Assign(CssKeywords.None, CssKeywords.None));
+
+        /// <summary>
+        /// Represents a converter for the text-spacing-trim property.
+        /// </summary>
+        public static readonly IValueConverter TextSpacingTrimConverter = new Converters.IdentListConverter(new[]
+        {
+            "normal", "auto", "space-all", "trim-all", "trim-both", "trim-start", "space-start",
+            "space-first", "trim-adjacent", "space-adjacent", "trim-end", "space-end", "allow-end",
+        });
+
+        /// <summary>
+        /// Represents a converter for the text-autospace property.
+        /// </summary>
+        public static readonly IValueConverter TextAutospaceConverter = new Converters.IdentListConverter(new[]
+        {
+            "normal", "auto", "no-autospace", "ideograph-alpha", "ideograph-numeric", "punctuation",
+            "insert", "replace",
+        });
+
+        /// <summary>
+        /// Represents a converter for the text-spacing shorthand, which sets a value of both its
+        /// longhands: <c>none</c> and <c>auto</c> write the pair outright, and any other value names a
+        /// value of <c>text-spacing-trim</c> or of <c>text-autospace</c>, in either order, with the
+        /// longhand it does not name left at its initial value.
+        /// </summary>
+        public static readonly IValueConverter TextSpacingConverter = AggregateTuple(
+            new Converters.TextSpacingValueConverter());
 
         /// <summary>
         /// Represents a converter for the text-wrap property.
