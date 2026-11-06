@@ -23,6 +23,13 @@ namespace AngleSharp.Css.Dom
         private readonly IBrowsingContext _context;
         private ICssRule _parent;
         private Boolean _updating;
+        private IDeclarationFactory _factory;
+
+        /// <summary>
+        /// The factory this declaration's context carries, kept because asking for it enumerates the
+        /// services the context holds - which the cascade does for every property it looks up.
+        /// </summary>
+        private IDeclarationFactory Factory => _factory ??= _context.GetFactory<IDeclarationFactory>();
 
         #endregion
 
@@ -39,9 +46,7 @@ namespace AngleSharp.Css.Dom
             _declarations = new List<ICssProperty>();
             _declarationIndex = new Dictionary<String, Int32>(StringComparer.Ordinal);
             _context = context;
-        }
-
-        public CssStyleDeclaration(ICssRule parent)
+        }        public CssStyleDeclaration(ICssRule parent)
             : this(parent.Owner?.Context)
         {
             _parent = parent;
@@ -576,8 +581,19 @@ namespace AngleSharp.Css.Dom
 
         private ICssProperty GetPropertyFromShorthand(String name)
         {
-            var info = _context.GetDeclarationInfo(name);
-            var factory = _context.GetFactory<IDeclarationFactory>();
+            var factory = Factory;
+
+            // Most names are not shorthands, and nothing can give them. Asking the context for a
+            // declaration's info and for its factory are service lookups that enumerate what the
+            // context carries, so they are paid here only for a name that could have an answer -
+            // this ran on every miss of the declaration index before, for every property asked of
+            // every rule's declaration.
+            var info = factory.Create(name);
+
+            if (info.Shorthands.Length == 0)
+            {
+                return null;
+            }
 
             foreach (var shorthandName in info.Shorthands)
             {
